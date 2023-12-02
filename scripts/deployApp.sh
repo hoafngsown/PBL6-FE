@@ -1,0 +1,1 @@
+aws s3 sync ./build s3://mainstack-adminpublicbucket4d9c3338-1ubwarcnniiua --acl private --delete --profile seastar-dev

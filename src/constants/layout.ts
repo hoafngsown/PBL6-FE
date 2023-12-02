@@ -1,0 +1,1 @@
+export const LAYOUT_SIDE_WIDTH = 268;

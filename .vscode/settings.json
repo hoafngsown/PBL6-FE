@@ -1,0 +1,26 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+  "files.exclude": {
+    ".vscode/chrome/**": true
+  },
+  "files.watcherExclude": {
+    ".vscode/chrome/**": true
+  },
+  "html.format.extraLiners": "!",
+  "html.format.indentInnerHtml": true,
+  "search.exclude": {
+    "dist/**": true,
+    "node_modules": true
+  },
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true,
+  "[handlebars]": {
+    "editor.formatOnPaste": false,
+    "editor.formatOnSave": false,
+    "editor.formatOnType": false,
+  },
+  "javascript.preferences.quoteStyle": "single",
+  "typescript.preferences.quoteStyle": "single",
+}
