@@ -10,6 +10,7 @@ import ModalAddTask from '../ModalAddTask';
 interface IProps {
   col: any;
   onAddTask: () => void;
+  onDeleteTask: (id: string) => void;
 }
 function ColumnSection(props: IProps) {
 
@@ -27,7 +28,7 @@ function ColumnSection(props: IProps) {
   }
 
   return (
-    <div className='p-2 rounded-md bg-gray-100 border border-solid border-white'>
+    <div className='p-2 rounded-md bg-gray-100 border border-solid border-white w-[350px] max-h-[600px] overflow-y-scroll'>
       <h5 className='text-xl font-bold tracking-wide border-b boder-solid border-transparent'>
         {props.col.title}
       </h5>
@@ -39,7 +40,7 @@ function ColumnSection(props: IProps) {
         <div ref={setNodeRef} className='flex flex-col gap-y-2 mt-2'>
           {props.col.tasks && props.col.tasks.length && props.col.tasks.map((task) => (
             <div key={task.taskID}>
-              <TaskSection id={task.taskID} task={task} />
+              <TaskSection id={task.taskID} task={task} onDeleteTask={props.onDeleteTask} />
             </div>
           ))}
         </div>

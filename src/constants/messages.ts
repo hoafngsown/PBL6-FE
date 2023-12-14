@@ -17,6 +17,11 @@ export const MESSAGES = {
   PROJECT: {
     CREATE: {
       PRJ_001: 'Title is required.'
+    },
+    TASK: {
+      T001: 'Title is required.',
+      T002: 'Description is required.', 
+      T003: 'Deadline Date is required.', 
     }
   }
 }

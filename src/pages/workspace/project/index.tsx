@@ -1,6 +1,8 @@
-import { postApi } from '@/api/api';
+import { deleteApi, postApi } from '@/api/api';
 import { API_PATH } from '@/api/path';
 import MyDialog from '@/components/common/Dialog';
+import { r } from '@/utils/routes';
+import { NotifyTypeEnum, notify } from '@/utils/toast';
 import {
   DndContext,
   DragEndEvent,
@@ -19,12 +21,10 @@ import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import AddIcon from '@mui/icons-material/Add';
 import ChatIcon from '@mui/icons-material/Chat';
 import { Backdrop, CircularProgress } from '@mui/material';
-import clsx from 'clsx';
 import { useRef, useState } from 'react';
-import { useQuery } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 import { useParams } from 'react-router-dom';
-import { FormChat } from './components/ChatBox/FormChat';
-import { ListMessages } from './components/ChatBox/ListMessages';
+import ChatContainer from './components/ChatBox/ChatContainer';
 import ColumnSection from './components/ColumnSection';
 import ModalAddColumn from './components/ModalAddColumn';
 import TaskItem from './components/TaskItem';
@@ -60,6 +60,8 @@ function Project() {
   const [isSlideFormChat, setIsSlideFormChat] = useState<boolean>(false);
   const [isOpenModalAddColumn, setIsOpenModalAddColumn] = useState(false);
 
+  const [isReRender, setIsReRender] = useState(false);
+
   const [taskParams, setTaskParams] = useState<any>();
 
   const getProjectDetail = async () => {
@@ -74,6 +76,20 @@ function Project() {
       setProject(data)
     }
   })
+
+  const mutateDeleteTask = useMutation({
+    mutationFn: (id) => {
+      return deleteApi(r(API_PATH.PROJECT.TASK.DELETE, { taskId: id }), "")
+    },
+    onSuccess: () => {
+      notify('Delete Task Success !', NotifyTypeEnum.SUCCESS);
+      refetchProject();
+    },
+    onError: (err: any) => {
+      notify(err.response.data.message, NotifyTypeEnum.ERROR)
+    }
+  });
+
 
   const handleDragStart = ({ active }: DragStartEvent) => {
     let currentTask;
@@ -90,24 +106,17 @@ function Project() {
   const handleDragOver = ({ active, over }: DragOverEvent) => {
     if (ref.current) clearTimeout(ref.current);
 
-    const activeSortable = active.data.current.sortable;
-    const overSortable = over.data.current.sortable;
+    const activeSortable = active?.data?.current?.sortable;
+    const overSortable = over?.data?.current?.sortable;
+
+    if (!activeSortable || !overSortable) return;
+
     const currentActiveTaskIndex = activeSortable.items.findIndex(x => x.taskID === active.id);
     const currentOverTaskIndex = overSortable.items.findIndex(x => x.taskID === over.id);
     const activeContainerId = activeSortable.containerId;
     const overContainerId = overSortable.containerId;
     const activeContainerIndex = project.columns.findIndex(x => x.columnID === activeContainerId);
     const overContainerIndex = project.columns.findIndex(x => x.columnID === overContainerId);
-
-    const paramsApi = {
-      sourceColumnID: activeSortable.containerId,
-      targetColumnID: overSortable.containerId,
-      newIndex: currentOverTaskIndex,
-      oldIndex: currentActiveTaskIndex,
-      taskID: active.id,
-    };
-
-    setTaskParams(paramsApi);
 
     ref.current = setTimeout(() => {
       const newProject = JSON.parse(JSON.stringify(project));
@@ -137,8 +146,18 @@ function Project() {
         newProject.columns[activeContainerIndex].tasks = newActiveTasks;
         newProject.columns[overContainerIndex].tasks = newOverTasks;
         setProject(newProject);
+
+        const paramsApi = {
+          sourceColumnID: activeSortable.containerId,
+          targetColumnID: overSortable.containerId,
+          newIndex: currentOverTaskIndex,
+          oldIndex: currentActiveTaskIndex,
+          taskID: active.id,
+        };
+
+        setTaskParams(paramsApi);
       };
-    }, 500);
+    }, 200);
   };
 
   const handleDragEnd = async ({ active, over }: DragEndEvent) => {
@@ -161,26 +180,32 @@ function Project() {
     refetchProject();
   }
 
+  const onDeleteTask = async (id) => {
+    await mutateDeleteTask.mutate(id as any);
+    setIsReRender(x => !x)
+  }
+
   if (!project) return <></>;
 
   return (
-    <div className='w-screen h-screen overflow-hidden p-4 relative'>
+    <div className='w-screen h-screen overflow-x-scroll p-4 relative'>
       <div className='grid grid-cols-3 my-8'>
-        <button
+        <div className='flex items-center gap-x-4'><button
           onClick={() => setIsOpenModalAddColumn(true)}
-          className='px-2 py-1 w-[130px] flex items-center justify-center gap-x-2 border border-white rounded-lg
+          className='px-2 py-1 w-[130px] h-10 flex items-center justify-center gap-x-2 border border-white rounded-lg
         bg-gradient-to-r from-purple-400 to-pink-300'>
           <AddIcon fontSize='small' htmlColor='#fff' />
           <span className='text-white font-medium text-sm'>Add Column</span>
         </button>
-        <p className='text-2xl font-bold uppercase'>{project.title}</p>
-        <button
-          onClick={() => setIsSlideFormChat(true)}
-          className='px-2 py-1 w-[130px] flex items-center justify-center gap-x-2 border border-white rounded-lg
+          <button
+            onClick={() => setIsSlideFormChat(true)}
+            className='px-2 py-1 w-[130px] h-10 flex items-center justify-center gap-x-2 border border-white rounded-lg
         bg-gradient-to-r from-purple-400 to-pink-300'>
-          <span className='text-white font-medium text-sm'>Open Chat</span>
-          <ChatIcon className='font-sm text-white' />
-        </button>
+            <span className='text-white font-medium text-sm'>Open Chat</span>
+            <ChatIcon className='font-sm text-white' />
+          </button></div>
+        <p className='text-2xl font-bold uppercase'>{project.title}</p>
+
       </div>
 
       <DndContext
@@ -190,10 +215,10 @@ function Project() {
         onDragEnd={handleDragEnd}
         onDragOver={handleDragOver}
       >
-        <div className='grid grid-cols-4 gap-x-6'>
+        <div className='flex gap-x-6'>
           {
             project.columns && project.columns.length && project.columns.map((col) => {
-              return <ColumnSection onAddTask={onAddTask} col={col} key={col.columnID} />
+              return <ColumnSection onAddTask={onAddTask} onDeleteTask={onDeleteTask} col={col} key={col.columnID} />
             })
           }
           <DragOverlay dropAnimation={dropAnimation}>
@@ -210,24 +235,7 @@ function Project() {
         className='absolute top-0 left-0 right-0 bottom-0 object-cover w-full h-full -z-10'
       />
 
-      <div
-        onClick={handleCloseBoxChat}
-        className={clsx(
-          "fixed top-0 right-0 bottom-0 left-0 w-screen transition-all duration-300 z-0",
-          {
-            "translate-x-full": !isSlideFormChat,
-            "translate-x-0 bg-gray-100/70": isSlideFormChat,
-          }
-        )}>
-        <div className='w-[450px] pt-[75px] h-full ml-auto z-20 bg-[#fff] rounded-[5px] py-[1rem] shadow-[0px_0px_30px_rgba(0,0,0,0.05)]"
-        '>
-          <ListMessages />
-          <div>
-            <FormChat />
-          </div>
-        </div>
-      </div>
-
+      <ChatContainer onClose={handleCloseBoxChat} isOpen={isSlideFormChat} />
 
       <MyDialog
         open={isOpenModalAddColumn}
@@ -242,8 +250,6 @@ function Project() {
           onAddColumn={onAddColumn}
         />
       </MyDialog>
-
-
 
       {
         isLoadingProject && (<Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}

@@ -6,9 +6,13 @@ import { useEffect, useState } from 'react';
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useQuery } from 'react-query';
 import { useParams } from 'react-router-dom';
+import { IInitChatDetailParams } from './ChatContainer';
 import { MessageDetail } from './MessageDetail';
 
-export const ListMessages = (props) => {
+interface IProps {
+  defaultValues: IInitChatDetailParams | null;
+}
+export const ListMessages = (props: IProps) => {
   const { id } = useParams();
 
   const { userId } = getTokenAndUserId();
@@ -35,7 +39,9 @@ export const ListMessages = (props) => {
     const { data } = await getApi(API_PATH.PROJECT.MESSAGES.GET_ALL, {
       page: 1,
       itemsPerPage,
-      projectID: id
+      projectID: id,
+      userSendId: props.defaultValues.userSendId,
+      userReceiveId: props.defaultValues.userReceiveId
     });
 
     const result = data.metadata.data;
@@ -56,7 +62,7 @@ export const ListMessages = (props) => {
   const handleNewMessage = (msg) => {
     if (msg) {
       setMessages([msg, ...messages]);
-      if (msg.user.userID !== userId) {
+      if (msg.userSendId !== userId) {
         const audio = new Audio("/audio/messenger_ny.mp3");
         audio.play();
       } else {
@@ -77,6 +83,7 @@ export const ListMessages = (props) => {
       setMounted(true);
       joinChatRoom();
       socketMessage?.on("receive-message", (data) => {
+        console.log({ data })
         setNewMessage(data);
       });
     }
