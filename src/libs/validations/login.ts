@@ -14,3 +14,10 @@ export const signInSchema = yup.object({
 export const addProjectSchema = yup.object({
   title: yup.string().required(MESSAGES.PROJECT.CREATE.PRJ_001),
 });
+
+
+export const addTaskSchema = yup.object({
+  title: yup.string().required(MESSAGES.PROJECT.TASK.T001),
+  description: yup.string().required(MESSAGES.PROJECT.TASK.T002),
+  deadline_date: yup.date().required(MESSAGES.PROJECT.TASK.T003).typeError(MESSAGES.PROJECT.TASK.T003),
+});

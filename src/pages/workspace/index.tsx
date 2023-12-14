@@ -1,11 +1,11 @@
-import { getApi, postApi } from '@/api/api';
+import { postApi } from '@/api/api';
 import { API_PATH } from '@/api/path';
 import { NotifyTypeEnum, notify } from '@/utils/toast';
 import { Backdrop, Button, CircularProgress } from '@mui/material';
 import { useState } from 'react';
-import ProjectCard from './components/ProjectCard';
-import AddProject from './components/AddProject';
 import { useQuery } from 'react-query';
+import AddProject from './components/AddProject';
+import ProjectCard from './components/ProjectCard';
 
 function WorkSpace() {
 
@@ -17,7 +17,7 @@ function WorkSpace() {
     return response.data.metadata;
   }
 
-  const { data: projectList } = useQuery({
+  const { data: projectList, refetch } = useQuery({
     queryKey: ['get_list_project'],
     queryFn: getProjectList,
     onSuccess(data) {
@@ -83,7 +83,10 @@ function WorkSpace() {
       <AddProject
         open={isOpenDialog}
         onClose={() => setIsOpenDialog(false)}
-        onSubmit={() => { }}
+        onAddProject={() => {
+          setIsOpenDialog(false);
+          refetch();
+        }}
       />
     </>
   )

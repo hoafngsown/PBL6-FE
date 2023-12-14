@@ -1,7 +1,6 @@
-import { getTokenAndUserId } from '@/utils';
 import socketMessage from '@/utils/socketMessages';
 import { useCallback, useState } from "react";
-import { useParams } from 'react-router-dom';
+import { IInitChatDetailParams } from './ChatContainer';
 
 
 export interface IMessage {
@@ -10,10 +9,11 @@ export interface IMessage {
   message: string;
 }
 
-export const FormChat = () => {
-  const { userId } = getTokenAndUserId();
-  const { id: projectID } = useParams();
+interface IProps {
+  defaultValues: IInitChatDetailParams | null;
+}
 
+export const FormChat = (props: IProps) => {
 
   const [message, setMessage] = useState<string>("");
 
@@ -22,9 +22,8 @@ export const FormChat = () => {
 
     if (!message) return false;
 
-    const contentMessage: IMessage = {
-      userID: userId,
-      projectID,
+    const contentMessage = {
+      ...props.defaultValues,
       message,
     };
 
@@ -42,7 +41,6 @@ export const FormChat = () => {
         placeholder="Typing..."
         className="w-full h-[2.5rem] pl-4 rounded-[3rem] border border-solid  focus:outline-none"
         onChange={onChange}
-      // onFocus={updateLastSeen}
       />
       <button type="submit">
         <img

@@ -8,7 +8,7 @@ const DefaultLayout = () => {
     <Box sx={{ display: "flex" }}>
       <AppSidebar />
       <Box
-        className="mt-[60px] overflow-hidden"
+        className="mt-[60px]"
         component="main"
         sx={{ flexGrow: 1 }}
       >

@@ -1,14 +1,16 @@
+import { postApi } from '@/api/api';
+import { API_PATH } from '@/api/path';
 import { currentUserState, LOGIN_PATH } from "@/constants";
 import { removeToken } from "@/utils";
 import ExpandLessSharpIcon from "@mui/icons-material/ExpandLessSharp";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import LogoutIcon from "@mui/icons-material/Logout";
+import MenuIcon from "@mui/icons-material/Menu";
 import { ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import { styled } from "@mui/material/styles";
-import MenuIcon from "@mui/icons-material/Menu";
 import Toolbar from "@mui/material/Toolbar";
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
@@ -58,7 +60,8 @@ export default function AppHeader(props: AppHeaderProps) {
     setAnchorEl(null);
   };
 
-  const handlerLogout = () => {
+  const handlerLogout = async () => {
+    await postApi(API_PATH.LOGOUT, {}, {});
     handleClose();
     removeToken();
     navigate(LOGIN_PATH);
