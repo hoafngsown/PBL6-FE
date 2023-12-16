@@ -98,9 +98,10 @@ export const ListMessages = (props: IProps) => {
   }, []);
 
   const joinChatRoom = () => {
-    socketMessage.emit("join", {
-      id: userId,
+    socketMessage.emit("join-room-chat", {
       projectID: id,
+      userID1: userId,
+      userID2: props.defaultValues.userReceiveId
     });
   }
 
