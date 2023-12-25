@@ -17,6 +17,7 @@ import {
 import { useFormik } from "formik";
 import React, { useState } from "react";
 import { useMutation } from "react-query";
+import { useNavigate } from 'react-router-dom';
 import styled from "styled-components";
 
 const StyledLoginForm = styled.div`
@@ -38,6 +39,7 @@ interface ILoginFormProps {
 export const LoginForm = (
   props: React.PropsWithChildren<ILoginFormProps>
 ) => {
+  const navigate = useNavigate();
   const isSubmitted = React.useRef(false);
   const [rememberPassword, setRememberPassword] =
     useState(false);
@@ -149,6 +151,13 @@ export const LoginForm = (
           >
             Login
           </Button>
+
+          <span className='mt-6 italic block'>You don't have an account?
+            <span
+              className='underline text-blue-400 ml-3 cursor-pointer'
+              onClick={() => navigate("/signup")}
+            >Sign up</span>
+          </span>
         </div>
       </form>
     </StyledLoginForm>

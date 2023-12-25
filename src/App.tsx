@@ -7,8 +7,9 @@ import "react-toastify/dist/ReactToastify.css";
 import { RecoilRoot, useRecoilState } from "recoil";
 
 import Error404 from "@/pages/errors/404";
-import { LOGIN_PATH, currentUserState } from './constants';
+import { LOGIN_PATH, SIGNUP_PATH, currentUserState } from './constants';
 import { LoginPage } from './pages/auth/login';
+import { SignUpPage } from './pages/auth/signup/SignUpPage';
 import Error403 from "./pages/errors/403";
 import { theme } from "./theme";
 import { getTokenAndUserId } from './utils';
@@ -58,6 +59,7 @@ function Router() {
       <Routes>
         {/* {renderAuthRoutes()} */}
         <Route path={LOGIN_PATH} element={<LoginPage />} />
+        <Route path={SIGNUP_PATH} element={<SignUpPage />} />
         <Route path="/403" element={<Error403 />} />
         <Route path="/404" element={<Error404 />} />
         <Route path="*" element={<DefaultLayout />} />

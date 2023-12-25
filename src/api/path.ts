@@ -1,6 +1,7 @@
 export const BASE_API = "/v1/api";
 export const API_PATH = {
   LOGIN: `${BASE_API}/login`,
+  SIGNUP: `${BASE_API}/signup`,
   LOGOUT: `${BASE_API}/logout`,
   ERROR_LIST: `${BASE_API}/user/login dien`,
   ADMIN: `${BASE_API}/admin`,

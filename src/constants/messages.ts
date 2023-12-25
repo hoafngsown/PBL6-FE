@@ -13,6 +13,7 @@ export const MESSAGES = {
     EMAIL_002: 'Email is invalid.',
     PW_001: 'Password is required.',
     PW_002: 'Min length password is 4 and max is 16',
+    USN_001: 'Username is required.',
   },
   PROJECT: {
     CREATE: {
