@@ -1,5 +1,6 @@
 export const AUTH_PATH = "auth";
 export const LOGIN_PATH = "/login";
+export const SIGNUP_PATH = "/signup";
 export const ADMIN_PATH = "admin";
 export const USER_PATH = "user";
 export const DRUG_PATH = "drug";
