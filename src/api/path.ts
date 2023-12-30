@@ -3,8 +3,6 @@ export const API_PATH = {
   LOGIN: `${BASE_API}/login`,
   SIGNUP: `${BASE_API}/signup`,
   LOGOUT: `${BASE_API}/logout`,
-  ERROR_LIST: `${BASE_API}/user/login dien`,
-  ADMIN: `${BASE_API}/admin`,
   USER: {
       GET_ALL: `${BASE_API}/user`,
       VERIFY_EMAIL: `${BASE_API}/user/verify-email`,
@@ -12,7 +10,6 @@ export const API_PATH = {
   INVITATION: {
     INDEX: `${BASE_API}/invite`,
   },
-  LOCATION: `locations`,
   PROJECT: {
     CREATE: `${BASE_API}/project/add`,
     GET_ALL: `${BASE_API}/project/getall`,

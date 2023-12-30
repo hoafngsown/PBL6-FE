@@ -1,4 +1,3 @@
-import { DateRange } from "@mui/x-date-pickers-pro/DateRangePicker";
 export interface Route {
   name: string;
   href: string;
@@ -14,4 +13,3 @@ export type ISelectOption = {
   value: string | number;
 };
 
-export type IDateRange = DateRange<Date>;

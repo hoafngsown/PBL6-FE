@@ -1,7 +1,11 @@
 import { COLORS } from "@/constants";
-import { ButtonPosition } from "@/enums";
 import Button from "@mui/material/Button";
 import * as React from "react";
+
+export enum ButtonPosition {
+  start = "start",
+  end = "end",
+}
 
 interface IButtonProps {
   name: string;

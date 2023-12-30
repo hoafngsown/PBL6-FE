@@ -1,20 +1,10 @@
-import { ILocation } from "@/types/admin";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 
-import { deleteApi, getApi } from "@/api/api";
-import { API_PATH } from "@/api/path";
-import { currentUserState } from "@/constants";
-import { SUCCESS } from "@/constants/messages";
-import { useState } from "react";
-import { useMutation, useQuery } from "react-query";
-import { toast } from "react-toastify";
-import { useRecoilState } from "recoil";
 
 const columns = [
   "Invited User",
@@ -23,80 +13,7 @@ const columns = [
   "Action",
 ];
 
-const Locations = () => {
-  const [isOpenDialogDetail, setIsOpenDialogDetail] =
-    useState(false);
-  const [isOpenDialog, setIsOpenDialog] = useState(false);
-  const [idDelete, setIdDelete] = useState<string>("");
-
-  const [locationDetail, setLocationDetail] =
-    useState<ILocation>();
-
-  const [currentUser, setCurrentUser] = useRecoilState(
-    currentUserState
-  );
-
-  const handleOpenDialog = () => {
-    setIsOpenDialog(true);
-  };
-  const handleCloseDialog = () => {
-    setIsOpenDialog(false);
-  };
-  const handleOpenDialogDetail = () => {
-    setIsOpenDialogDetail(true);
-  };
-  const handleCloseDialogDetail = () => {
-    setIsOpenDialogDetail(false);
-  };
-
-  const getListErrorList = async () => {
-    try {
-      const { data } = await getApi(
-        `/api/document/${currentUser.id}/error-list`,
-        {}
-      );
-      return data;
-    } catch (error) {
-      console.log({ error });
-    }
-  };
-
-  const { data, refetch: refetchListUser } = useQuery({
-    queryKey: ["get_list_error"],
-    queryFn: async () => await getListErrorList(),
-    keepPreviousData: true,
-    onError(error: any) {
-      console.log({ error });
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: () =>
-      deleteApi(`${API_PATH.LOCATION}/${idDelete}`, {}),
-    onSuccess: () => {
-      toast.success(SUCCESS.DELETE_USER_SUCCESS, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-      handleCloseDialog();
-      refetchListUser();
-    },
-    onError(error: any) {
-      console.log({ error });
-    },
-  });
-
-  const onConfirmDelete = () => {
-    if (!idDelete) return;
-    deleteMutation.mutate();
-  };
-  //
+const Invitiation = () => {
 
   return (
     <div className='p-4'>
@@ -132,7 +49,7 @@ const Locations = () => {
                     )}
                   </TableRow>
                 </TableHead>
-                <TableBody className='tableBody'>
+                {/* <TableBody className='tableBody'>
                   {data &&
                     data.length > 0 &&
                     data.map((row, index: number) => (
@@ -175,7 +92,7 @@ const Locations = () => {
                         </TableCell>
                       </TableRow>
                     ))}
-                </TableBody>
+                </TableBody> */}
               </Table>
             </TableContainer>
           </div>
@@ -185,4 +102,4 @@ const Locations = () => {
   );
 };
 
-export default Locations;
+export default Invitiation;

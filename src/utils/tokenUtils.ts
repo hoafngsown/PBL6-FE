@@ -34,12 +34,6 @@ export const getTokenAndUserId = () => {
   return getTokenAndUserIdFromCookies() || getTokenAndUserIdFromSession();
 };
 
-export const decodeToken = (token: string) => {
-  const base64Url = token.split(".")[1];
-  const base64 = base64Url.replace("-", "+").replace("_", "/");
-  return JSON.parse(window.atob(base64));
-};
-
 export const removeToken = () => {
   document.cookie = "token=;x-client-id=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/;";
   sessionStorage.removeItem("token");

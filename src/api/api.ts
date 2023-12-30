@@ -1,10 +1,8 @@
-import { ERROR } from "@/constants/messages";
 import { getTokenAndUserId } from "@/utils";
 import axios, {
   AxiosError,
   AxiosRequestConfig,
 } from "axios";
-import { toast } from "react-toastify";
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -35,22 +33,6 @@ api.interceptors.response.use(
   (res) => Promise.resolve(res),
 
   (error) => {
-    const message =
-      error?.response?.data.message ||
-      error?.response?.data._message;
-
-    if (ERROR[message]) {
-      toast.error(ERROR[error?.response?.data.message], {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-    }
     return Promise.reject(error);
   }
 );

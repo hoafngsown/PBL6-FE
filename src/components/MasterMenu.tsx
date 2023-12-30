@@ -81,16 +81,6 @@ const SingleLevel = ({ item, drawerOpen }) => {
 };
 
 const StyledMasterMenu = styled.div`
-  // .MuiListItemIcon-root,
-  // .MuiTypography-root {
-  //   color: white;
-  // }
-  // .MuiListItemIcon-root {
-  //   min-width: 36px;
-  // }
-  // .MuiCollapse-root {
-  //   padding-top: 5px;
-  // }
   .MuiButtonBase-root {
     border-radius: 10px;
 
