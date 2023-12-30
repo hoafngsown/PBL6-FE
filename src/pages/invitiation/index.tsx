@@ -1,4 +1,3 @@
-import IconDelete from "@/assets/images/ic-garbage.svg";
 import { ILocation } from "@/types/admin";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
@@ -10,22 +9,18 @@ import TableRow from "@mui/material/TableRow";
 
 import { deleteApi, getApi } from "@/api/api";
 import { API_PATH } from "@/api/path";
-import DialogDelete from "@/components/common/DialogDelete";
-import { LocationTypo } from "@/components/common/LocationTypo";
+import { currentUserState } from "@/constants";
 import { SUCCESS } from "@/constants/messages";
 import { useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import { toast } from "react-toastify";
-import PopupDetailLocation from "./components/PopupDetailLocation";
 import { useRecoilState } from "recoil";
-import { currentUserState } from "@/constants";
 
 const columns = [
-  "Content",
-  "Edited Content",
-  "Created Date",
-  "Modified Date",
-  "Document's Name",
+  "Invited User",
+  "Date",
+  "Status",
+  "Action",
 ];
 
 const Locations = () => {
@@ -104,10 +99,10 @@ const Locations = () => {
   //
 
   return (
-    <>
+    <div className='p-4'>
       <div className='flex items-center justify-between'>
         <span className='font-medium text-base leading-5'>
-          Quản Lí Kết Quả
+          Quản Lí Lời Mời
         </span>
       </div>
       {/* TABLE CONTAINER */}
@@ -186,17 +181,7 @@ const Locations = () => {
           </div>
         </div>
       </div>
-      <DialogDelete
-        open={isOpenDialog}
-        onClose={handleCloseDialog}
-        doAction={onConfirmDelete}
-      />
-      <PopupDetailLocation
-        isOpen={isOpenDialogDetail}
-        onClose={handleCloseDialogDetail}
-        location={locationDetail as ILocation}
-      />
-    </>
+    </div>
   );
 };
 

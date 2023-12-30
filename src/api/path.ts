@@ -5,7 +5,13 @@ export const API_PATH = {
   LOGOUT: `${BASE_API}/logout`,
   ERROR_LIST: `${BASE_API}/user/login dien`,
   ADMIN: `${BASE_API}/admin`,
-  USER: `user`,
+  USER: {
+      GET_ALL: `${BASE_API}/user`,
+      VERIFY_EMAIL: `${BASE_API}/user/verify-email`,
+  },
+  INVITATION: {
+    INDEX: `${BASE_API}/invite`,
+  },
   LOCATION: `locations`,
   PROJECT: {
     CREATE: `${BASE_API}/project/add`,
@@ -23,7 +29,7 @@ export const API_PATH = {
       ADD: `${BASE_API}/project/column/add`,
     },
     USERS: {
-      GET_ALL:  `${BASE_API}/project/users`,
+      GET_ALL: `${BASE_API}/project/users`,
     }
-  }
+  },
 };
