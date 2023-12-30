@@ -214,44 +214,16 @@ body {
 
 .list-message {
   overflow-y: auto;
-  // -ms-overflow-style: none; /* IE and Edge */
-  // scrollbar-width: none; /* Firefox */
-  // overscroll-behavior-y: contain;
-  // scroll-snap-type: y mandatory;
 }
-// .list-message::-webkit-scrollbar {
-//   display: none;
-// }
-// .list-message > div:last-child {
-//   scroll-snap-align: start;
-// }
+
 
 .text-line-clamp-1 {
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   line-height: 17px;
-  // max-height: 41px;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
-}
-
-.grid-cols-4-custom {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-.grid-cols-5-custom {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-}
-
-.grid-cols-6-custom {
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-}
-
-.select-no-arrow {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
 }
 
 .menu-icon-active {
@@ -267,23 +239,4 @@ body {
 
 .MuiAutocomplete-paper {
   border-bottom: none;
-}
-
-.customSlickSlider {
-  .slick-prev {
-    left: -23px;
-  }
-  .slick-prev:before {
-    color: black;
-  }
-  .slick-next {
-    right: -23px;
-  }
-  .slick-next::before {
-    color: black;
-  }
-}
-
-.custom-menu {
-  
 }

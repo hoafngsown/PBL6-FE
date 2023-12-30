@@ -5,12 +5,6 @@ import {
 } from "@/constants";
 
 export const MENU = [
-  // {
-  //   title: "Quản Lí Tài Nguyên",
-  //   icon: <img src="/images/icons/menu/dashboard.svg" alt="dashboards" />,
-  //   url: DASHBOARD_PATH,
-  //   isActive: () => window.location.pathname === DASHBOARD_PATH,
-  // },
   {
     title: "Correcting spelling mistakes",
     icon: (
