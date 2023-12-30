@@ -55,3 +55,8 @@ export const MY_WORKSPACE = {
   PROJECT: "/my-workspace/project",
   PROJECT_DETAIL: "/my-workspace/project/:id",
 }
+
+
+export const MY_INVITIATION = {
+  MAIN: "/my-invitiation"
+}

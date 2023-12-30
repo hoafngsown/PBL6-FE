@@ -35,7 +35,7 @@ const Admin = () => {
   };
 
   return (
-    <>
+    <div className='p-4'>
       <div className='flex items-center justify-between'>
         <span className='font-medium text-base leading-5'>
           Yêu Cầu
@@ -82,7 +82,7 @@ const Admin = () => {
       >
         <CircularProgress color="inherit" />
       </Backdrop>
-    </>
+    </div>
   );
 };
 

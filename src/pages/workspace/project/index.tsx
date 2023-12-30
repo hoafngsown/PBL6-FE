@@ -1,8 +1,8 @@
-import { deleteApi, postApi } from '@/api/api';
-import { API_PATH } from '@/api/path';
-import MyDialog from '@/components/common/Dialog';
-import { r } from '@/utils/routes';
-import { NotifyTypeEnum, notify } from '@/utils/toast';
+import { deleteApi, postApi } from "@/api/api";
+import { API_PATH } from "@/api/path";
+import MyDialog from "@/components/common/Dialog";
+import { r } from "@/utils/routes";
+import { NotifyTypeEnum, notify } from "@/utils/toast";
 import {
   DndContext,
   DragEndEvent,
@@ -15,19 +15,20 @@ import {
   closestCorners,
   defaultDropAnimation,
   useSensor,
-  useSensors
-} from '@dnd-kit/core';
-import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import AddIcon from '@mui/icons-material/Add';
-import ChatIcon from '@mui/icons-material/Chat';
-import { Backdrop, CircularProgress } from '@mui/material';
-import { useRef, useState } from 'react';
-import { useMutation, useQuery } from 'react-query';
-import { useParams } from 'react-router-dom';
-import ChatContainer from './components/ChatBox/ChatContainer';
-import ColumnSection from './components/ColumnSection';
-import ModalAddColumn from './components/ModalAddColumn';
-import TaskItem from './components/TaskItem';
+  useSensors,
+} from "@dnd-kit/core";
+import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import AddIcon from "@mui/icons-material/Add";
+import ChatIcon from "@mui/icons-material/Chat";
+import { Backdrop, CircularProgress } from "@mui/material";
+import { useEffect, useRef, useState } from "react";
+import { useMutation, useQuery } from "react-query";
+import { useParams } from "react-router-dom";
+import ChatContainer from "./components/ChatBox/ChatContainer";
+import ColumnSection from "./components/ColumnSection";
+import ModalAddColumn from "./components/ModalAddColumn";
+import ModalAddUser from './components/ModalAddUser';
+import TaskItem from "./components/TaskItem";
 
 export interface IBoard {
   id: string;
@@ -43,7 +44,6 @@ export interface ITask {
 
 const dropAnimation: DropAnimation = { ...defaultDropAnimation };
 
-
 function Project() {
   const { id } = useParams();
   const sensors = useSensors(
@@ -57,51 +57,55 @@ function Project() {
 
   const [project, setProject] = useState<any>();
   const [draggingItem, setDraggingItem] = useState<ITask>();
+
   const [isSlideFormChat, setIsSlideFormChat] = useState<boolean>(false);
   const [isOpenModalAddColumn, setIsOpenModalAddColumn] = useState(false);
+  const [isOpenModalAddUser, setIsOpenModalAddUser] = useState(false);
 
-  const [isReRender, setIsReRender] = useState(false);
+  const [, setIsReRender] = useState(false);
 
   const [taskParams, setTaskParams] = useState<any>();
 
   const getProjectDetail = async () => {
-    const response = await postApi(API_PATH.PROJECT.DETAIL, { projectID: id }, {});
+    const response = await postApi(
+      API_PATH.PROJECT.DETAIL,
+      { projectID: id },
+      {}
+    );
     return response.data.metadata;
-  }
+  };
 
   const { refetch: refetchProject, isLoading: isLoadingProject } = useQuery({
-    queryKey: ['get_project_detail', id],
+    queryKey: ["get_project_detail", id],
     queryFn: getProjectDetail,
     onSuccess: (data) => {
-      setProject(data)
-    }
-  })
+      setProject(data);
+    },
+  });
 
   const mutateDeleteTask = useMutation({
     mutationFn: (id) => {
-      return deleteApi(r(API_PATH.PROJECT.TASK.DELETE, { taskId: id }), "")
+      return deleteApi(r(API_PATH.PROJECT.TASK.DELETE, { taskId: id }), "");
     },
     onSuccess: () => {
-      notify('Delete Task Success !', NotifyTypeEnum.SUCCESS);
+      notify("Delete Task Success !", NotifyTypeEnum.SUCCESS);
       refetchProject();
     },
     onError: (err: any) => {
-      notify(err.response.data.message, NotifyTypeEnum.ERROR)
-    }
+      notify(err.response.data.message, NotifyTypeEnum.ERROR);
+    },
   });
-
 
   const handleDragStart = ({ active }: DragStartEvent) => {
     let currentTask;
 
     active.data.current.sortable.items.forEach((x) => {
       if (currentTask) return;
-      currentTask = (x.taskID === active.id) ? x : undefined;
+      currentTask = x.taskID === active.id ? x : undefined;
     });
 
     setDraggingItem(currentTask);
   };
-
 
   const handleDragOver = ({ active, over }: DragOverEvent) => {
     if (ref.current) clearTimeout(ref.current);
@@ -111,12 +115,20 @@ function Project() {
 
     if (!activeSortable || !overSortable) return;
 
-    const currentActiveTaskIndex = activeSortable.items.findIndex(x => x.taskID === active.id);
-    const currentOverTaskIndex = overSortable.items.findIndex(x => x.taskID === over.id);
+    const currentActiveTaskIndex = activeSortable.items.findIndex(
+      (x) => x.taskID === active.id
+    );
+    const currentOverTaskIndex = overSortable.items.findIndex(
+      (x) => x.taskID === over.id
+    );
     const activeContainerId = activeSortable.containerId;
     const overContainerId = overSortable.containerId;
-    const activeContainerIndex = project.columns.findIndex(x => x.columnID === activeContainerId);
-    const overContainerIndex = project.columns.findIndex(x => x.columnID === overContainerId);
+    const activeContainerIndex = project.columns.findIndex(
+      (x) => x.columnID === activeContainerId
+    );
+    const overContainerIndex = project.columns.findIndex(
+      (x) => x.columnID === overContainerId
+    );
 
     ref.current = setTimeout(() => {
       const newProject = JSON.parse(JSON.stringify(project));
@@ -124,13 +136,21 @@ function Project() {
       if (!activeContainerId || !overContainerId) return;
 
       if (activeContainerId === overContainerId) {
-        const newTasks = arrayMove(newProject.columns[activeContainerIndex].tasks, currentActiveTaskIndex, currentOverTaskIndex);
+        const newTasks = arrayMove(
+          newProject.columns[activeContainerIndex].tasks,
+          currentActiveTaskIndex,
+          currentOverTaskIndex
+        );
 
         newProject.columns[activeContainerIndex].tasks = newTasks;
         setProject(newProject);
       } else {
-        const copyActiveTasks = JSON.parse(JSON.stringify(newProject.columns[activeContainerIndex].tasks));
-        const copyOverTasks = JSON.parse(JSON.stringify(newProject.columns[overContainerIndex].tasks));
+        const copyActiveTasks = JSON.parse(
+          JSON.stringify(newProject.columns[activeContainerIndex].tasks)
+        );
+        const copyOverTasks = JSON.parse(
+          JSON.stringify(newProject.columns[overContainerIndex].tasks)
+        );
 
         const newActiveTasks = [
           ...copyActiveTasks.slice(0, currentActiveTaskIndex),
@@ -139,7 +159,9 @@ function Project() {
 
         const newOverTasks = [
           ...copyOverTasks.slice(0, currentOverTaskIndex),
-          newProject.columns[activeContainerIndex].tasks[currentActiveTaskIndex],
+          newProject.columns[activeContainerIndex].tasks[
+          currentActiveTaskIndex
+          ],
           ...copyOverTasks.slice(currentOverTaskIndex),
         ];
 
@@ -156,7 +178,7 @@ function Project() {
         };
 
         setTaskParams(paramsApi);
-      };
+      }
     }, 200);
   };
 
@@ -164,7 +186,7 @@ function Project() {
     if (!taskParams) return;
 
     await postApi(API_PATH.PROJECT.TASK.CHANGE_INDEX, taskParams, {});
-    setDraggingItem(null)
+    setDraggingItem(null);
   };
 
   const handleCloseBoxChat = (e) => {
@@ -173,39 +195,50 @@ function Project() {
 
   const onAddTask = () => {
     refetchProject();
-  }
+  };
 
   const onAddColumn = () => {
-    setIsOpenModalAddColumn(false)
+    setIsOpenModalAddColumn(false);
     refetchProject();
-  }
+  };
 
   const onDeleteTask = async (id) => {
     await mutateDeleteTask.mutate(id as any);
-    setIsReRender(x => !x)
-  }
+    setIsReRender((x) => !x);
+  };
 
   if (!project) return <></>;
 
   return (
-    <div className='w-screen h-screen overflow-x-scroll p-4 relative'>
-      <div className='grid grid-cols-3 my-8'>
-        <div className='flex items-center gap-x-4'><button
-          onClick={() => setIsOpenModalAddColumn(true)}
-          className='px-2 py-1 w-[130px] h-10 flex items-center justify-center gap-x-2 border border-white rounded-lg
-        bg-gradient-to-r from-purple-400 to-pink-300'>
-          <AddIcon fontSize='small' htmlColor='#fff' />
-          <span className='text-white font-medium text-sm'>Add Column</span>
-        </button>
+    <div className="w-screen h-screen overflow-x-scroll p-4 relative">
+      <div className="grid grid-cols-3 my-8">
+        <div className="flex items-center gap-x-8">
+          <button
+            onClick={() => setIsOpenModalAddColumn(true)}
+            className="px-2 py-1 w-[130px] h-10 flex items-center justify-center gap-x-2 border border-white rounded-lg
+        bg-gradient-to-r from-purple-400 to-pink-300"
+          >
+            <AddIcon fontSize="small" htmlColor="#fff" />
+            <span className="text-white font-medium text-sm">Add Column</span>
+          </button>
           <button
             onClick={() => setIsSlideFormChat(true)}
-            className='px-2 py-1 w-[130px] h-10 flex items-center justify-center gap-x-2 border border-white rounded-lg
-        bg-gradient-to-r from-purple-400 to-pink-300'>
-            <span className='text-white font-medium text-sm'>Open Chat</span>
-            <ChatIcon className='font-sm text-white' />
-          </button></div>
-        <p className='text-2xl font-bold uppercase'>{project.title}</p>
-
+            className="px-2 py-1 w-[130px] h-10 flex items-center justify-center gap-x-2 border border-white rounded-lg
+        bg-gradient-to-r from-purple-400 to-pink-300"
+          >
+            <span className="text-white font-medium text-sm">Open Chat</span>
+            <ChatIcon className="font-sm text-white" />
+          </button>
+          <button
+            onClick={() => setIsOpenModalAddUser(true)}
+            className="px-2 py-1 w-[130px] h-10 flex items-center justify-center gap-x-2 border border-white rounded-lg
+        bg-gradient-to-r from-purple-400 to-pink-300"
+          >
+            <span className="text-white font-medium text-sm">Add User</span>
+            <ChatIcon className="font-sm text-white" />
+          </button>
+        </div>
+        <p className="text-2xl font-bold uppercase">{project.title}</p>
       </div>
 
       <DndContext
@@ -215,31 +248,40 @@ function Project() {
         onDragEnd={handleDragEnd}
         onDragOver={handleDragOver}
       >
-        <div className='flex gap-x-6'>
-          {
-            project.columns && project.columns.length && project.columns.map((col) => {
-              return <ColumnSection onAddTask={onAddTask} onDeleteTask={onDeleteTask} col={col} key={col.columnID} />
-            })
-          }
+        <div className="flex gap-x-6">
+          {project.columns &&
+            project.columns.length &&
+            project.columns.map((col) => {
+              return (
+                <ColumnSection
+                  onAddTask={onAddTask}
+                  onDeleteTask={onDeleteTask}
+                  col={col}
+                  key={col.columnID}
+                />
+              );
+            })}
           <DragOverlay dropAnimation={dropAnimation}>
-            {draggingItem ? <div className='shadow-md animate-bounce'>
-              <TaskItem task={draggingItem} />
-            </div> : null}
+            {draggingItem ? (
+              <div className="shadow-md animate-bounce">
+                <TaskItem task={draggingItem} />
+              </div>
+            ) : null}
           </DragOverlay>
         </div>
       </DndContext>
 
       <img
         src="https://img.freepik.com/free-photo/vivid-blurred-colorful-background_58702-2655.jpg"
-        alt='bg-gardient'
-        className='absolute top-0 left-0 right-0 bottom-0 object-cover w-full h-full -z-10'
+        alt="bg-gardient"
+        className="absolute top-0 left-0 right-0 bottom-0 object-cover w-full h-full -z-10"
       />
 
       <ChatContainer onClose={handleCloseBoxChat} isOpen={isSlideFormChat} />
 
       <MyDialog
         open={isOpenModalAddColumn}
-        title='Add Column'
+        title="Add Column"
         isShowAction={false}
         onClose={() => setIsOpenModalAddColumn(false)}
         doAction={() => { }}
@@ -251,15 +293,28 @@ function Project() {
         />
       </MyDialog>
 
-      {
-        isLoadingProject && (<Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+
+      {isOpenModalAddUser && <MyDialog
+        open={isOpenModalAddUser}
+        title="Add Users"
+        isShowAction={false}
+        onClose={() => setIsOpenModalAddUser(false)}
+        doAction={() => { }}
+      >
+        <ModalAddUser projectID={id} />
+      </MyDialog>}
+
+
+      {isLoadingProject && (
+        <Backdrop
+          sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
           open={true}
         >
           <CircularProgress color="inherit" />
-        </Backdrop>)
-      }
+        </Backdrop>
+      )}
     </div>
-  )
+  );
 }
 
-export default Project
+export default Project;

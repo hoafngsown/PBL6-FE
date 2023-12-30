@@ -1,6 +1,5 @@
 import { postApi } from '@/api/api';
 import { API_PATH } from '@/api/path';
-import { NotifyTypeEnum, notify } from '@/utils/toast';
 import { Backdrop, Button, CircularProgress } from '@mui/material';
 import { useState } from 'react';
 import { useQuery } from 'react-query';
@@ -27,23 +26,6 @@ function WorkSpace() {
       console.log({ err })
     },
   })
-
-  console.log({ projectList });
-
-
-  const handleCreateProject = async () => {
-    try {
-      setIsLoading(true);
-      const response = await postApi(API_PATH.PROJECT.CREATE, { title: 'Project cua Xon nha Think' }, {});
-
-      notify(response.data.message, NotifyTypeEnum.SUCCESS);
-      setIsOpenDialog(false);
-    } catch (error) {
-      console.log({ error })
-    } finally {
-      setIsLoading(false);
-    }
-  }
 
   return (
     <>
