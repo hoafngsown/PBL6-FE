@@ -9,11 +9,10 @@ export const MessageDetail = (props: IPropsMessageDetail) => {
   const { message } = props;
 
   const { userId } = getTokenAndUserId();
-  const userName = message.userReceiveId === null ? message.userSend.userName : message.userReceive.userName
 
   return (
     <>
-      {message.userSendId === userId ? (
+      {message.senderId === userId ? (
         <div className="mb-4 ml-4">
           <div>
             <p className="w-[calc(100%-40px)] overflow-y-auto text-[0.5rem] text-end text-[#878687]">
@@ -26,7 +25,6 @@ export const MessageDetail = (props: IPropsMessageDetail) => {
               <div className="w-[32px] h-[32px] bg-[#C8C7C7] ml-1 rounded-full flex justify-center items-center">
                 <img
                   className={"!w-full !h-full rounded-full"}
-                  // src={ || "/images/icons/user.svg"}
                   src="https://scontent.fdad3-6.fna.fbcdn.net/v/t1.15752-9/403404105_894110541793814_5802275011316563369_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=8cd0a2&_nc_eui2=AeHqcHSABdUAwGxDZepPFvDvGpLwWc_OutEakvBZz8660YjQUpjZ3aY9sFiCfLsy0P6VtczSG00rtBzkl-rvHTvj&_nc_ohc=OreroOKYS7MAX_65OgX&_nc_ht=scontent.fdad3-6.fna&oh=03_AdR2Ft2SRdi0yvyv401Eduzw_-XRNYYM9W3P7Y2akaIFPQ&oe=659142EC"
                   alt=""
                 />
@@ -47,7 +45,7 @@ export const MessageDetail = (props: IPropsMessageDetail) => {
               </div>
               <div className="w-[calc(100%-40px)]">
                 <span className="font-medium text-[0.625rem]">
-                  {userName}
+                  {message.receiver.userName}
                 </span>
                 <span className="ml-[0.25rem] text-[0.5rem] text-[#878687]">
                   {format(new Date(message.createdAt), "HH:mm")}{" "}

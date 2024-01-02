@@ -11,7 +11,7 @@ function ProjectCard({ project }: IProps) {
   const navigate = useNavigate();
 
   const onGotoDetail = () => {
-    navigate(r(MY_WORKSPACE.PROJECT_DETAIL, { id: project.projectID }));
+    navigate(r(MY_WORKSPACE.PROJECT_DETAIL, { id: project.id }));
   };
 
   return (
@@ -28,7 +28,7 @@ function ProjectCard({ project }: IProps) {
       <div className='mt-4'>
         <h4 className='font-medium text-xl'>{project.title}</h4>
         <p className='text-sm tracking-wide text-ellipsis overflow-hidden'>
-          {project.title}
+          {project.description}
         </p>
       </div>
     </div>

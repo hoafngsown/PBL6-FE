@@ -42,12 +42,9 @@ export const LoginPage = (
     currentUserState
   );
 
-  const handleLoginSuccess = (
-    result: any,
-    saveToken: boolean
-  ) => {
-    setCurrentUser({ id: result.metadata.user.userID });
-    saveTokenAndUserIdToCookies(result.metadata.tokens.accessToken, result.metadata.user.userID);
+  const handleLoginSuccess = (result: any) => {
+    setCurrentUser({ id: result.metadata.user.id });
+    saveTokenAndUserIdToCookies(result.metadata.tokens.accessToken, result.metadata.user.id);
     navigate("/request");
   };
 

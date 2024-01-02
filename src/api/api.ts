@@ -17,12 +17,9 @@ export const api = axios.create({
 api.interceptors.request.use(
   (config: AxiosRequestConfig) => {
 
-    const { token, userId } = getTokenAndUserId();
-    console.log({ userId, token });
+    const { token } = getTokenAndUserId();
     config.headers = config.headers ?? {};
-    config.headers["Authorization"] = token;
-    config.headers["x-client-id"] = userId;
-
+    config.headers["Authorization"] = `Bearer ${token}` ;
     return config;
   },
 

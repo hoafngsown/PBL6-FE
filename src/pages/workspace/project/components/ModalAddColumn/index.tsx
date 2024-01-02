@@ -3,6 +3,7 @@ import { Button } from '@mui/material';
 
 import { postApi } from '@/api/api';
 import { API_PATH } from '@/api/path';
+import { r } from '@/utils/routes';
 import { NotifyTypeEnum, notify } from '@/utils/toast';
 import { useFormik } from 'formik';
 import { useRef } from 'react';
@@ -27,18 +28,12 @@ function ModalAddColumn(props: IProps) {
 
   const formik = useFormik<IFormValues>({
     initialValues: DEFAULT_FORM_VALUES,
-    // validationSchema: signInSchema,
     onSubmit: (values) => mutate(values),
   });
 
   const { mutate, isLoading } = useMutation({
     mutationFn: (values: IFormValues) => {
-      const params = {
-        ...values,
-        index: props.columnLength,
-        projectID: props.projectID
-      }
-      return postApi(API_PATH.PROJECT.COLUMN.ADD, params, "")
+      return postApi(r(API_PATH.PROJECT.COLUMN.INDEX, { projectId: props.projectID }), values, "")
     },
     onSuccess: () => {
       notify('Add Column Success !', NotifyTypeEnum.SUCCESS);

@@ -38,16 +38,15 @@ export const ListMessages = (props: IProps) => {
   const fetchListMessages = async () => {
     const { data } = await getApi(API_PATH.PROJECT.MESSAGES.GET_ALL, {
       page: 1,
-      itemsPerPage,
-      projectID: id,
-      userSendId: props.defaultValues.userSendId,
-      userReceiveId: props.defaultValues.userReceiveId
+      limit: itemsPerPage,
+      projectId: id,
+      senderId: props.defaultValues.senderId,
+      receiverId: props.defaultValues.receiverId
     });
 
-    const result = data.metadata.data;
-    const totalItemsRes = data.metadata.meta.totalItems;
-
-    setTotalItems(totalItemsRes);
+    const result = data.metadata;
+    // const totalItemsRes = data.metadata.meta.totalItems;
+    // setTotalItems(totalItemsRes);
     setMessages(result)
   };
 
@@ -62,7 +61,7 @@ export const ListMessages = (props: IProps) => {
   const handleNewMessage = (msg) => {
     if (msg) {
       setMessages([msg, ...messages]);
-      if (msg.userSendId !== userId) {
+      if (msg.senderId !== userId) {
         const audio = new Audio("/audio/messenger_ny.mp3");
         audio.play();
       } else {
@@ -83,7 +82,7 @@ export const ListMessages = (props: IProps) => {
       setMounted(true);
       joinChatRoom();
       socketMessage?.on("receive-message", (data) => {
-        console.log({ data })
+        console.log({data})
         setNewMessage(data);
       });
     }
@@ -101,7 +100,7 @@ export const ListMessages = (props: IProps) => {
     socketMessage.emit("join-room-chat", {
       projectID: id,
       userID1: userId,
-      userID2: props.defaultValues.userReceiveId
+      userID2: props.defaultValues.receiverId
     });
   }
 

@@ -1,4 +1,4 @@
-import { deleteApi, postApi } from "@/api/api";
+import { deleteApi, getApi, postApi } from "@/api/api";
 import { API_PATH } from "@/api/path";
 import MyDialog from "@/components/common/Dialog";
 import { r } from "@/utils/routes";
@@ -21,7 +21,7 @@ import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import AddIcon from "@mui/icons-material/Add";
 import ChatIcon from "@mui/icons-material/Chat";
 import { Backdrop, CircularProgress } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import ChatContainer from "./components/ChatBox/ChatContainer";
@@ -67,11 +67,12 @@ function Project() {
   const [taskParams, setTaskParams] = useState<any>();
 
   const getProjectDetail = async () => {
-    const response = await postApi(
-      API_PATH.PROJECT.DETAIL,
-      { projectID: id },
-      {}
-    );
+    const response = await getApi(r(API_PATH.PROJECT.DETAIL, { id: id }), {});
+    return response.data.metadata;
+  };
+
+  const getColumnList = async () => {
+    const response = await getApi(r(API_PATH.PROJECT.COLUMN.INDEX, { projectId: id }), {});
     return response.data.metadata;
   };
 
@@ -82,6 +83,14 @@ function Project() {
       setProject(data);
     },
   });
+
+  const { data: columns, refetch: refetchColumn } = useQuery({
+    queryKey: ["get_column_list", id],
+    queryFn: getColumnList,
+  });
+
+
+  console.log({ columns })
 
   const mutateDeleteTask = useMutation({
     mutationFn: (id) => {
@@ -199,7 +208,7 @@ function Project() {
 
   const onAddColumn = () => {
     setIsOpenModalAddColumn(false);
-    refetchProject();
+    refetchColumn();
   };
 
   const onDeleteTask = async (id) => {
@@ -249,18 +258,17 @@ function Project() {
         onDragOver={handleDragOver}
       >
         <div className="flex gap-x-6">
-          {project.columns &&
-            project.columns.length &&
-            project.columns.map((col) => {
-              return (
-                <ColumnSection
-                  onAddTask={onAddTask}
-                  onDeleteTask={onDeleteTask}
-                  col={col}
-                  key={col.columnID}
-                />
-              );
-            })}
+          {columns && columns.length && columns.map((col) => {
+            return (
+              <ColumnSection
+                onAddTask={onAddTask}
+                onDeleteTask={onDeleteTask}
+                col={col}
+                key={col.id}
+                refetch={refetchColumn}
+              />
+            );
+          })}
           <DragOverlay dropAnimation={dropAnimation}>
             {draggingItem ? (
               <div className="shadow-md animate-bounce">

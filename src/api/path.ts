@@ -11,22 +11,22 @@ export const API_PATH = {
     INDEX: `${BASE_API}/invite`,
   },
   PROJECT: {
-    CREATE: `${BASE_API}/project/add`,
-    GET_ALL: `${BASE_API}/project/getall`,
-    DETAIL: `${BASE_API}/project/getdetail`,
+    CREATE: `${BASE_API}/project`,
+    GET_ALL: `${BASE_API}/project`,
+    INVITATION: `${BASE_API}/project/invitation`,
+    DETAIL: `${BASE_API}/project/:id`,
+    USERS: `${BASE_API}/project/:id/users`,
     TASK: {
       CHANGE_INDEX: `${BASE_API}/project/task/changeindex`,
       ADD: `${BASE_API}/project/task/add`,
       DELETE: `${BASE_API}/project/task/delete/:taskId`,
     },
     MESSAGES: {
-      GET_ALL: `${BASE_API}/project/messages`,
+      GET_ALL: `${BASE_API}/project/:id/messages`,
     },
     COLUMN: {
-      ADD: `${BASE_API}/project/column/add`,
+      INDEX: `${BASE_API}/project/:projectId/columns`,
+      DETAIL: `${BASE_API}/project/:projectId/columns/:columnId`,
     },
-    USERS: {
-      GET_ALL: `${BASE_API}/project/users`,
-    }
   },
 };

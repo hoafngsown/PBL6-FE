@@ -1,5 +1,6 @@
 import { getApi } from '@/api/api';
 import { API_PATH } from '@/api/path';
+import { r } from '@/utils/routes';
 import { useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useQuery } from 'react-query';
@@ -31,30 +32,30 @@ function UserChatList(props: IProps) {
   };
 
   const getListUser = async () => {
-    const { data } = await getApi(API_PATH.PROJECT.USERS.GET_ALL, {
+    const { data } = await getApi(r(API_PATH.PROJECT.USERS , {id}), {
       page: 1,
-      itemsPerPage,
-      projectID: id
+      limit: itemsPerPage,
     });
 
-    const result = data.metadata.data;
-    const totalItemsRes = data.metadata.meta.totalItems;
+    const result = data.metadata;
+    // const totalItemsRes = data.metadata.meta.totalItems;
 
     const groupChatRecord = {
-      userName: 'Group Chat',
+      user: {
+       userName: 'Group Chat',
+      },
       isGroup: true
     };
 
     setListUser([...result, groupChatRecord]);
-    setTotalItems(totalItemsRes);
+    setTotalItems(10);
+    // setTotalItems(totalItemsRes);
   };
 
   const handleGoToChatDetail = (user) => {
     if (user.isGroup) return props.onGoToChatDetail();
-    return props.onGoToChatDetail(user.userID);
+    return props.onGoToChatDetail(user.user.id);
   }
-
-  console.log(listUser);
 
   return (
     <div className='pt-2'>

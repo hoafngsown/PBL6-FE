@@ -1,9 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { currentUserState } from "@/constants";
 import { useNavigate } from "react-router-dom";
-import { useRecoilState } from "recoil";
 // import { RoleAdmin } from "@/enums";
 // import { LIST_HOTEL } from "@/constants/hotel";
 
@@ -23,7 +21,6 @@ import {
 import { postApi } from "@/api/api";
 import { API_PATH } from "@/api/path";
 import { signUpSchema } from '@/libs/validations/login';
-import { saveTokenAndUserIdToCookies } from '@/utils';
 import { NotifyTypeEnum, notify } from '@/utils/toast';
 import { useFormik } from "formik";
 import { useState } from "react";
@@ -68,9 +65,6 @@ export const SignUpPage = (
   props: React.PropsWithChildren<ISignUpPageProps>
 ) => {
   const navigate = useNavigate();
-  const [_, setCurrentUser] = useRecoilState(
-    currentUserState
-  );
 
   const isSubmitted = React.useRef(false);
   const [rememberPassword, setRememberPassword] =
@@ -85,13 +79,9 @@ export const SignUpPage = (
   const { mutate, isLoading } = useMutation({
     mutationFn: (params: any) =>
       postApi(API_PATH.SIGNUP, params, ""),
-    onSuccess: (res) => {
+    onSuccess: () => {
       notify('Sign up success', NotifyTypeEnum.SUCCESS);
-      const result = res.data;
-
-      setCurrentUser({ id: result.metadata.user.userID });
-      saveTokenAndUserIdToCookies(result.metadata.tokens.accessToken, result.metadata.user.userID);
-      navigate("/request");
+      navigate("/login");
     },
     onError: (err: any) => {
       notify(err.response.data.message, NotifyTypeEnum.ERROR)

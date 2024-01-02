@@ -5,7 +5,7 @@ import { IInitChatDetailParams } from './ChatContainer';
 
 export interface IMessage {
   userID: string;
-  projectID: string;
+  propjectId: string;
   message: string;
 }
 
@@ -23,9 +23,11 @@ export const FormChat = (props: IProps) => {
     if (!message) return false;
 
     const contentMessage = {
-      ...props.defaultValues,
+      senderId: props.defaultValues.senderId,
+      receiverId: props.defaultValues.receiverId,
+      projectId: props.defaultValues.projectId,
       message,
-    };
+    }
 
     socketMessage?.emit("send-message", contentMessage);
     setMessage("");

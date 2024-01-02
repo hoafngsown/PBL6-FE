@@ -9,9 +9,9 @@ interface IProps {
 };
 
 export interface IInitChatDetailParams {
-  projectID: string;
-  userSendId: string;
-  userReceiveId: string;
+  projectId: string;
+  senderId: string;
+  receiverId: string;
   isGroup?: boolean;
 }
 
@@ -25,7 +25,7 @@ const ChatDetailContainerComponent = lazy(() => import('./ChatDetailContainer'))
 
 function ChatContainer(props: IProps) {
 
-  const { id: projectID } = useParams();
+  const { id: projectId } = useParams();
   const { userId } = getTokenAndUserId();
 
   const [chatFrame, setChatFrame] = useState(ChatFrame.ListUser);
@@ -34,9 +34,9 @@ function ChatContainer(props: IProps) {
   const onGoToChatDetail = (id?: string) => {
     setChatFrame(ChatFrame.ChatDetail);
     setInitChatDetailParams({
-      projectID: projectID as string,
-      userSendId: userId as string,
-      userReceiveId: id || null,
+      projectId: projectId as string,
+      senderId: userId as string,
+      receiverId: id || null,
       isGroup: id ? false : true
     });
   };
@@ -60,9 +60,7 @@ function ChatContainer(props: IProps) {
         <Suspense fallback={<div>Loading...</div>}>
           {
             chatFrame === ChatFrame.ListUser &&
-            <UserChatListComponent
-              onGoToChatDetail={onGoToChatDetail}
-            />
+            <UserChatListComponent onGoToChatDetail={onGoToChatDetail} />
           }
           {
             chatFrame === ChatFrame.ChatDetail &&

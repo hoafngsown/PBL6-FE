@@ -1,6 +1,6 @@
-import { postApi } from '@/api/api';
+import { getApi } from '@/api/api';
 import { API_PATH } from '@/api/path';
-import { Backdrop, Button, CircularProgress } from '@mui/material';
+import { Backdrop, Button, CircularProgress, Pagination } from '@mui/material';
 import { useState } from 'react';
 import { useQuery } from 'react-query';
 import AddProject from './components/AddProject';
@@ -10,14 +10,19 @@ function WorkSpace() {
 
   const [isOpenDialog, setIsOpenDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [page, setPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState(10);
 
   const getProjectList = async () => {
-    const response = await postApi(API_PATH.PROJECT.GET_ALL, {}, {});
+    const response = await getApi(API_PATH.PROJECT.GET_ALL, {
+      limit: 10,
+      page: page,
+    });
     return response.data.metadata;
   }
 
   const { data: projectList, refetch } = useQuery({
-    queryKey: ['get_list_project'],
+    queryKey: ['get_list_project', page],
     queryFn: getProjectList,
     onSuccess(data) {
       console.log({ data })
@@ -54,6 +59,10 @@ function WorkSpace() {
 
           </div>
         </div>
+      </div>
+
+      <div className='mt-10 flex items-center justify-center'>
+        <Pagination count={totalPages} page={page} onChange={(_, p: number) => setPage(p)} />
       </div>
       <Backdrop
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
