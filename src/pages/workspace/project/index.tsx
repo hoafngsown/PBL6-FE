@@ -1,6 +1,7 @@
-import { deleteApi, getApi, postApi } from "@/api/api";
+import { deleteApi, getApi, putApi } from "@/api/api";
 import { API_PATH } from "@/api/path";
 import MyDialog from "@/components/common/Dialog";
+import { EProjectRole } from '@/constants/project';
 import { IRole } from '@/types/project';
 import { getTokenAndUserId } from '@/utils';
 import { r } from "@/utils/routes";
@@ -23,7 +24,7 @@ import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import AddIcon from "@mui/icons-material/Add";
 import ChatIcon from "@mui/icons-material/Chat";
 import { Backdrop, CircularProgress } from "@mui/material";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import ChatContainer from "./components/ChatBox/ChatContainer";
@@ -56,9 +57,8 @@ function Project() {
     })
   );
 
-  const ref = useRef(null);
-
   const [project, setProject] = useState<any>();
+  const [columns, setColumns] = useState<any>();
   const [draggingItem, setDraggingItem] = useState<ITask>();
 
   const [isSlideFormChat, setIsSlideFormChat] = useState<boolean>(false);
@@ -81,6 +81,11 @@ function Project() {
     return response.data.metadata;
   };
 
+  const getPermission = async () => {
+    const response = await getApi(r(API_PATH.PROJECT.PERMISSION, { id }), {});
+    return response.data.metadata;
+  };
+
   const { refetch: refetchProject, isLoading: isLoadingProject } = useQuery({
     queryKey: ["get_project_detail", id],
     queryFn: getProjectDetail,
@@ -90,21 +95,24 @@ function Project() {
     },
   });
 
-  const { data: columns, refetch: refetchColumn } = useQuery({
+  const { refetch: refetchColumn } = useQuery({
     queryKey: ["get_column_list", id],
     queryFn: getColumnList,
+    onSuccess: (data) => setColumns(data)
   });
 
-
-  console.log({ columns })
+  const { data: permission } = useQuery({
+    queryKey: ["get_permission", id],
+    queryFn: getPermission,
+  });
 
   const mutateDeleteTask = useMutation({
-    mutationFn: (id) => {
-      return deleteApi(r(API_PATH.PROJECT.TASK.DELETE, { taskId: id }), "");
+    mutationFn: ({ taskId, columnId }: any) => {
+      return deleteApi(r(API_PATH.PROJECT.TASK.DELETE, { projectId: id, columnId, taskId }), "");
     },
     onSuccess: () => {
       notify("Delete Task Success !", NotifyTypeEnum.SUCCESS);
-      refetchProject();
+      refetchColumn();
     },
     onError: (err: any) => {
       notify(err.response.data.message, NotifyTypeEnum.ERROR);
@@ -112,11 +120,6 @@ function Project() {
   });
 
   const handleDragStart = ({ active }: DragStartEvent) => {
-    // active.data.current.sortable.items.forEach((x) => {
-    //   if (currentTask) return;
-    //   currentTask = x.taskID === active.id ? x : undefined;
-    // });
-
     const taskId = active.id;
     const columnId = active.data.current.sortable.containerId;
 
@@ -127,86 +130,69 @@ function Project() {
   };
 
   const handleDragOver = ({ active, over }: DragOverEvent) => {
-    // if (ref.current) clearTimeout(ref.current);
-
     const activeSortable = active?.data?.current?.sortable;
     const overSortable = over?.data?.current?.sortable;
 
     if (!activeSortable || !overSortable) return;
 
-    const currentActiveTaskIndex = activeSortable.items.findIndex(
-      (x) => x.taskID === active.id
-    );
-    const currentOverTaskIndex = overSortable.items.findIndex(
-      (x) => x.taskID === over.id
-    );
-    console.log({ currentActiveTaskIndex, currentOverTaskIndex })
-    // const activeContainerId = activeSortable.containerId;
-    // const overContainerId = overSortable.containerId;
-    // const activeContainerIndex = project.columns.findIndex(
-    //   (x) => x.columnID === activeContainerId
-    // );
-    // const overContainerIndex = project.columns.findIndex(
-    //   (x) => x.columnID === overContainerId
-    // );
+    const currentActiveTaskIndex = activeSortable.index;
+    const currentOverTaskIndex = overSortable.index
+    const activeContainerId = activeSortable.containerId;
+    const overContainerId = overSortable.containerId;
 
-    // ref.current = setTimeout(() => {
-    //   const newProject = JSON.parse(JSON.stringify(project));
+    const activeContainerIndex = columns.findIndex((x) => x.id === activeContainerId);
+    const overContainerIndex = columns.findIndex((x) => x.id === overContainerId);
 
-    //   if (!activeContainerId || !overContainerId) return;
+    if (!activeContainerId || !overContainerId) return;
 
-    //   if (activeContainerId === overContainerId) {
-    //     const newTasks = arrayMove(
-    //       newProject.columns[activeContainerIndex].tasks,
-    //       currentActiveTaskIndex,
-    //       currentOverTaskIndex
-    //     );
+    const copyColumns = JSON.parse(JSON.stringify(columns));
 
-    //     newProject.columns[activeContainerIndex].tasks = newTasks;
-    //     setProject(newProject);
-    //   } else {
-    //     const copyActiveTasks = JSON.parse(
-    //       JSON.stringify(newProject.columns[activeContainerIndex].tasks)
-    //     );
-    //     const copyOverTasks = JSON.parse(
-    //       JSON.stringify(newProject.columns[overContainerIndex].tasks)
-    //     );
+    if (activeContainerId === overContainerId) {
+      const newTasks = arrayMove(
+        copyColumns[activeContainerIndex].tasks,
+        currentActiveTaskIndex,
+        currentOverTaskIndex
+      );
 
-    //     const newActiveTasks = [
-    //       ...copyActiveTasks.slice(0, currentActiveTaskIndex),
-    //       ...copyActiveTasks.slice(currentActiveTaskIndex + 1),
-    //     ];
+      copyColumns[activeContainerIndex].tasks = newTasks;
+      setColumns(copyColumns);
+    } else {
+      const copyActiveTasks = JSON.parse(JSON.stringify(copyColumns[activeContainerIndex].tasks));
+      const copyOverTasks = JSON.parse(JSON.stringify(copyColumns[overContainerIndex].tasks));
 
-    //     const newOverTasks = [
-    //       ...copyOverTasks.slice(0, currentOverTaskIndex),
-    //       newProject.columns[activeContainerIndex].tasks[
-    //       currentActiveTaskIndex
-    //       ],
-    //       ...copyOverTasks.slice(currentOverTaskIndex),
-    //     ];
+      const newActiveTasks = [
+        ...copyActiveTasks.slice(0, currentActiveTaskIndex),
+        ...copyActiveTasks.slice(currentActiveTaskIndex + 1),
+      ];
 
-    //     newProject.columns[activeContainerIndex].tasks = newActiveTasks;
-    //     newProject.columns[overContainerIndex].tasks = newOverTasks;
-    //     setProject(newProject);
+      const newOverTasks = [
+        ...copyOverTasks.slice(0, currentOverTaskIndex),
+        copyColumns[activeContainerIndex].tasks[
+        currentActiveTaskIndex
+        ],
+        ...copyOverTasks.slice(currentOverTaskIndex),
+      ];
 
-    //     const paramsApi = {
-    //       sourceColumnID: activeSortable.containerId,
-    //       targetColumnID: overSortable.containerId,
-    //       newIndex: currentOverTaskIndex,
-    //       oldIndex: currentActiveTaskIndex,
-    //       taskID: active.id,
-    //     };
+      copyColumns[activeContainerIndex].tasks = newActiveTasks;
+      copyColumns[overContainerIndex].tasks = newOverTasks;
+      setColumns(copyColumns);
+    };
 
-    //     setTaskParams(paramsApi);
-    //   }
-    // }, 200);
-  };
+    const paramsApi = {
+      sourceColumnId: activeContainerId,
+      targetColumnId: overContainerId,
+      index: currentOverTaskIndex,
+      taskId: active.id,
+    };
+
+    setTaskParams(paramsApi);
+  }
 
   const handleDragEnd = async ({ active, over }: DragEndEvent) => {
-    // if (!taskParams) return;
 
-    // await postApi(API_PATH.PROJECT.TASK.CHANGE_INDEX, taskParams, {});
-    // setDraggingItem(null);
+    if (!taskParams) return;
+    await putApi(r(API_PATH.PROJECT.TASK.UPDATE, { projectId: id, taskId: taskParams.taskId }), taskParams);
+    setDraggingItem(null);
   };
 
   const handleCloseBoxChat = (e) => {
@@ -222,10 +208,12 @@ function Project() {
     refetchColumn();
   };
 
-  const onDeleteTask = async (id) => {
-    await mutateDeleteTask.mutate(id as any);
+  const onDeleteTask = async (values) => {
+    await mutateDeleteTask.mutate(values);
     setIsReRender((x) => !x);
   };
+
+  const role = project?.role?.role as EProjectRole;
 
   if (!project) return <></>;
 
@@ -233,30 +221,35 @@ function Project() {
     <div className="w-screen h-screen overflow-x-scroll p-4 relative">
       <div className="grid grid-cols-3 my-8">
         <div className="flex items-center gap-x-8">
-          <button
-            onClick={() => setIsOpenModalAddColumn(true)}
-            className="px-2 py-1 w-[130px] h-10 flex items-center justify-center gap-x-2 border border-white rounded-lg
+          <>
+            {((role === EProjectRole.ADMIN) || (role === EProjectRole.OWNER)) && <button
+              onClick={() => setIsOpenModalAddColumn(true)}
+              className="px-2 py-1 w-[130px] h-10 flex items-center justify-center gap-x-2 border border-white rounded-lg
         bg-gradient-to-r from-purple-400 to-pink-300"
-          >
-            <AddIcon fontSize="small" htmlColor="#fff" />
-            <span className="text-white font-medium text-sm">Add Column</span>
-          </button>
-          <button
-            onClick={() => setIsSlideFormChat(true)}
-            className="px-2 py-1 w-[130px] h-10 flex items-center justify-center gap-x-2 border border-white rounded-lg
+            >
+              <AddIcon fontSize="small" htmlColor="#fff" />
+              <span className="text-white font-medium text-sm">Add Column</span>
+            </button>}
+            {
+              ((role !== EProjectRole.GUEST) && <button
+                onClick={() => setIsSlideFormChat(true)}
+                className="px-2 py-1 w-[130px] h-10 flex items-center justify-center gap-x-2 border border-white rounded-lg
         bg-gradient-to-r from-purple-400 to-pink-300"
-          >
-            <span className="text-white font-medium text-sm">Open Chat</span>
-            <ChatIcon className="font-sm text-white" />
-          </button>
-          <button
-            onClick={() => setIsOpenModalAddUser(true)}
-            className="px-2 py-1 w-[130px] h-10 flex items-center justify-center gap-x-2 border border-white rounded-lg
+              >
+                <span className="text-white font-medium text-sm">Open Chat</span>
+                <ChatIcon className="font-sm text-white" />
+              </button>)
+            }
+
+            {((role === EProjectRole.ADMIN) || (role === EProjectRole.OWNER)) && <button
+              onClick={() => setIsOpenModalAddUser(true)}
+              className="px-2 py-1 w-[130px] h-10 flex items-center justify-center gap-x-2 border border-white rounded-lg
         bg-gradient-to-r from-purple-400 to-pink-300"
-          >
-            <span className="text-white font-medium text-sm">Add User</span>
-            <ChatIcon className="font-sm text-white" />
-          </button>
+            >
+              <span className="text-white font-medium text-sm">Add User</span>
+              <ChatIcon className="font-sm text-white" />
+            </button>}
+          </>
         </div>
         <p className="text-2xl font-bold uppercase">{project.title}</p>
       </div>
@@ -278,6 +271,7 @@ function Project() {
                 key={col.id}
                 refetch={refetchColumn}
                 assigneList={assigneList}
+                role={role}
               />
             );
           })}

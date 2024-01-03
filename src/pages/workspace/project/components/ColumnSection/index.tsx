@@ -2,10 +2,12 @@ import { putApi } from '@/api/api';
 import { API_PATH } from '@/api/path';
 import MyDialog from '@/components/common/Dialog';
 import FormTextField from '@/components/form/FormTextField';
+import { EProjectRole } from '@/constants/project';
 import { IRole } from '@/types/project';
 import { r } from '@/utils/routes';
 import { NotifyTypeEnum, notify } from '@/utils/toast';
 import { useDroppable } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import { useFormik } from 'formik';
@@ -13,15 +15,15 @@ import { useRef, useState } from 'react';
 import { useMutation } from 'react-query';
 import { useParams } from 'react-router-dom';
 import ModalAddTask from '../ModalAddTask';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import TaskSection from '../TaskSection';
 
 interface IProps {
   col: any;
   onAddTask: () => void;
-  onDeleteTask: (id: string) => void;
+  onDeleteTask: (values: any) => void;
   refetch: any;
   assigneList: IRole[];
+  role: EProjectRole;
 }
 
 interface IFormValues {
@@ -94,14 +96,16 @@ function ColumnSection(props: IProps) {
             </h5>
         }
 
-        <EditIcon
-          fontSize='small'
-          className='cursor-pointer'
-          onClick={() => {
-            if (formik.values.id === props.col.id) formik.handleSubmit()
-            else formik.setValues({ title: props.col.title, id: props.col.id })
-          }}
-        />
+        {(props.role === EProjectRole.ADMIN || props.role === EProjectRole.OWNER) &&
+          <EditIcon
+            fontSize='small'
+            className='cursor-pointer'
+            onClick={() => {
+              if (formik.values.id === props.col.id) formik.handleSubmit()
+              else formik.setValues({ title: props.col.title, id: props.col.id })
+            }}
+          />
+        }
       </div>
       <SortableContext
         id={props.col.id}
@@ -111,17 +115,21 @@ function ColumnSection(props: IProps) {
         <div ref={setNodeRef} className='flex flex-col gap-y-2 mt-2'>
           {props.col.tasks && props.col.tasks.length && props.col.tasks.map((task) => (
             <div key={task.id}>
-              <TaskSection id={task.id} task={task} onDeleteTask={props.onDeleteTask} />
+              <TaskSection id={task.id} task={task} onDeleteTask={(payload) => {
+                props.onDeleteTask({ ...payload, columnId: props.col.id })
+              }} />
             </div>
           ))}
         </div>
       </SortableContext>
-      <div className='mt-4'>
-        <div className='flex items-center gap-x-1 w-fit cursor-pointer' onClick={() => setIsOpenModal(true)}>
-          <AddIcon fontSize='small' />
-          <span className='font-medium'>Add</span>
+      {
+        (props.role === EProjectRole.ADMIN || props.role === EProjectRole.OWNER) && <div className='mt-4'>
+          <div className='flex items-center gap-x-1 w-fit cursor-pointer' onClick={() => setIsOpenModal(true)}>
+            <AddIcon fontSize='small' />
+            <span className='font-medium'>Add</span>
+          </div>
         </div>
-      </div>
+      }
 
       <MyDialog
         open={isOpenModal}

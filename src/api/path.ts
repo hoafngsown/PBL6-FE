@@ -16,10 +16,12 @@ export const API_PATH = {
     INVITATION: `${BASE_API}/project/invitation`,
     DETAIL: `${BASE_API}/project/:id`,
     USERS: `${BASE_API}/project/:id/users`,
-    TASK: {
+    PERMISSION: `${BASE_API}/project/:id/permission`,
+    TASK: { 
+      UPDATE: `${BASE_API}/project//:projectId/tasks/:taskId`,
       CHANGE_INDEX: `${BASE_API}/project/task/changeindex`,
       CREATE: `${BASE_API}/project/:projectId/columns/:columnId/tasks`,
-      DELETE: `${BASE_API}/project/task/delete/:taskId`,
+      DELETE: `${BASE_API}/project/:projectId/columns/:columnId/tasks/:taskId`,
     },
     MESSAGES: {
       GET_ALL: `${BASE_API}/project/:id/messages`,

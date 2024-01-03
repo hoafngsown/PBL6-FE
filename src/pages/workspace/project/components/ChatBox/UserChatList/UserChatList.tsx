@@ -10,7 +10,7 @@ import UserChatItem from './UserChatItem';
 const DEFAULT_ITEM_PER_PAGE = 10;
 
 interface IProps {
-  onGoToChatDetail: (id?: string) => void;
+  onGoToChatDetail: (roomName: string, id?: string) => void;
 }
 
 function UserChatList(props: IProps) {
@@ -32,7 +32,7 @@ function UserChatList(props: IProps) {
   };
 
   const getListUser = async () => {
-    const { data } = await getApi(r(API_PATH.PROJECT.USERS , {id}), {
+    const { data } = await getApi(r(API_PATH.PROJECT.USERS, { id }), {
       page: 1,
       limit: itemsPerPage,
     });
@@ -42,7 +42,7 @@ function UserChatList(props: IProps) {
 
     const groupChatRecord = {
       user: {
-       userName: 'Group Chat',
+        userName: 'Group Chat',
       },
       isGroup: true
     };
@@ -53,8 +53,8 @@ function UserChatList(props: IProps) {
   };
 
   const handleGoToChatDetail = (user) => {
-    if (user.isGroup) return props.onGoToChatDetail();
-    return props.onGoToChatDetail(user.user.id);
+    if (user.isGroup) return props.onGoToChatDetail(user.user.userName);
+    return props.onGoToChatDetail(user.user.userName, user.user.id);
   }
 
   return (

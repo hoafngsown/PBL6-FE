@@ -13,6 +13,7 @@ export interface IInitChatDetailParams {
   senderId: string;
   receiverId: string;
   isGroup?: boolean;
+  roomName: string;
 }
 
 enum ChatFrame {
@@ -31,13 +32,14 @@ function ChatContainer(props: IProps) {
   const [chatFrame, setChatFrame] = useState(ChatFrame.ListUser);
   const [initChatDetailParams, setInitChatDetailParams] = useState<IInitChatDetailParams | null>(null)
 
-  const onGoToChatDetail = (id?: string) => {
+  const onGoToChatDetail = (roomName: string, id?: string) => {
     setChatFrame(ChatFrame.ChatDetail);
     setInitChatDetailParams({
       projectId: projectId as string,
       senderId: userId as string,
       receiverId: id || null,
-      isGroup: id ? false : true
+      isGroup: id ? false : true,
+      roomName: roomName
     });
   };
 
