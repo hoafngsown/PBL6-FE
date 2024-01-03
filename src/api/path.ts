@@ -18,7 +18,7 @@ export const API_PATH = {
     USERS: `${BASE_API}/project/:id/users`,
     TASK: {
       CHANGE_INDEX: `${BASE_API}/project/task/changeindex`,
-      ADD: `${BASE_API}/project/task/add`,
+      CREATE: `${BASE_API}/project/:projectId/columns/:columnId/tasks`,
       DELETE: `${BASE_API}/project/task/delete/:taskId`,
     },
     MESSAGES: {

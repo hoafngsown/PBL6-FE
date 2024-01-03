@@ -1,36 +1,42 @@
 import FormTextField from '@/components/form/FormTextField';
-import { Backdrop, Button, CircularProgress, FormHelperText } from '@mui/material';
+import { Backdrop, Button, CircularProgress, FormHelperText, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 
 import { postApi, postApiMultipart } from '@/api/api';
 import { API_PATH } from '@/api/path';
 import FormDatePicker from '@/components/form/FormDatePicker';
 import { addTaskSchema } from '@/libs/validations/login';
+import { IRole } from '@/types/project';
+import { r } from '@/utils/routes';
 import { NotifyTypeEnum, notify } from '@/utils/toast';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import clsx from 'clsx';
 import { useFormik } from 'formik';
+import moment from 'moment';
 import { useRef, useState } from 'react';
 import { useMutation } from 'react-query';
 import styled from 'styled-components';
 interface IFormValues {
   title: string;
   description: string;
-  deadline_date: Date | string;
+  dueDate: Date | string;
+  startDate: Date | string;
+  assigneeId: string;
 };
 
 interface IProps {
-  columnLength: number;
+  projectId: string;
   columnID: string;
   onAddTask: () => void;
+  assigneList: IRole[];
 }
 
 const DEFAULT_FORM_VALUES: IFormValues = {
   title: '',
   description: '',
-  deadline_date: new Date(),
+  assigneeId: '',
+  dueDate: new Date(),
+  startDate: new Date(),
 }
-
-
 
 function ModalAddTask(props: IProps) {
   const isSubmitted = useRef(false);
@@ -46,17 +52,19 @@ function ModalAddTask(props: IProps) {
   const formik = useFormik<IFormValues>({
     initialValues: DEFAULT_FORM_VALUES,
     validationSchema: addTaskSchema,
-    onSubmit: (values) => mutate(values),
+    onSubmit: (values) => {
+      const params = {
+        ...values,
+        startDate: moment(values.startDate).format('DD-MM-YYYY'),
+        dueDate: moment(values.startDate).format('DD-MM-YYYY'),
+      }
+      mutate(params);
+    },
   });
 
   const { mutate, isLoading: isLoadingSubmitForm } = useMutation({
     mutationFn: (values: IFormValues) => {
-      const params = {
-        ...values,
-        index: props.columnLength,
-        columnID: props.columnID
-      }
-      return postApi(API_PATH.PROJECT.TASK.ADD, params, "")
+      return postApi(r(API_PATH.PROJECT.TASK.CREATE, { projectId: props.projectId, columnId: props.columnID }), values, "")
     },
     onSuccess: () => {
       notify('Add Task Success !', NotifyTypeEnum.SUCCESS);
@@ -109,7 +117,7 @@ function ModalAddTask(props: IProps) {
             Typing
           </Button>}
 
-          {file ?
+          {file && !isAnalysis ?
             <Button
               variant='contained'
               size='large'
@@ -135,7 +143,7 @@ function ModalAddTask(props: IProps) {
 
         </div >
 
-        {file && <span className='text-medium font-lg italic'>{file.name}</span>}
+        {file && !isAnalysis && <span className='text-medium font-lg italic'>{file.name}</span>}
 
 
         {
@@ -180,6 +188,8 @@ function ModalAddTask(props: IProps) {
               </div>
             </div>
 
+
+
             <div className='custom-input'>
               <div className='mb-6'>
                 <FormTextField
@@ -197,15 +207,39 @@ function ModalAddTask(props: IProps) {
             <div className="custom-input mb-6">
               <FormDatePicker
                 required
-                key="deadline_date"
-                label="Deadline Date"
+                key="start_date"
+                label="Start Date"
                 formik={formik}
-                name="deadline_date"
+                name="startDate"
                 isSubmitted={isSubmitted.current}
                 isDisabledTextField={true}
                 isDisabledPast={true}
               />
             </div>
+            <div className="custom-input mb-6">
+              <FormDatePicker
+                required
+                key="deadline_date"
+                label="Deadline Date"
+                formik={formik}
+                name="dueDate"
+                isSubmitted={isSubmitted.current}
+                isDisabledTextField={true}
+                isDisabledPast={true}
+              />
+            </div>
+            <div className="custom-input mb-6">
+              <Select
+                id="demo-simple-select"
+                value={formik.values.assigneeId}
+                label="Assignee"
+                onChange={(event: SelectChangeEvent) => formik.setValues({ ...formik.values, assigneeId: event.target.value })}
+                fullWidth
+              >
+                {props.assigneList.map((item) => <MenuItem value={item.userId}>{item.userId}</MenuItem>)}
+              </Select>
+            </div>
+
             <div>
               <Button
                 variant='contained'

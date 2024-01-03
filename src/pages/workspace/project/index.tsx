@@ -1,6 +1,8 @@
 import { deleteApi, getApi, postApi } from "@/api/api";
 import { API_PATH } from "@/api/path";
 import MyDialog from "@/components/common/Dialog";
+import { IRole } from '@/types/project';
+import { getTokenAndUserId } from '@/utils';
 import { r } from "@/utils/routes";
 import { NotifyTypeEnum, notify } from "@/utils/toast";
 import {
@@ -46,6 +48,7 @@ const dropAnimation: DropAnimation = { ...defaultDropAnimation };
 
 function Project() {
   const { id } = useParams();
+  const { userId } = getTokenAndUserId();
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -61,6 +64,8 @@ function Project() {
   const [isSlideFormChat, setIsSlideFormChat] = useState<boolean>(false);
   const [isOpenModalAddColumn, setIsOpenModalAddColumn] = useState(false);
   const [isOpenModalAddUser, setIsOpenModalAddUser] = useState(false);
+
+  const [assigneList, setAssigneList] = useState<IRole[]>([]);
 
   const [, setIsReRender] = useState(false);
 
@@ -81,6 +86,7 @@ function Project() {
     queryFn: getProjectDetail,
     onSuccess: (data) => {
       setProject(data);
+      setAssigneList(data.roles.filter(x => x.id !== userId))
     },
   });
 
@@ -106,18 +112,22 @@ function Project() {
   });
 
   const handleDragStart = ({ active }: DragStartEvent) => {
-    let currentTask;
+    // active.data.current.sortable.items.forEach((x) => {
+    //   if (currentTask) return;
+    //   currentTask = x.taskID === active.id ? x : undefined;
+    // });
 
-    active.data.current.sortable.items.forEach((x) => {
-      if (currentTask) return;
-      currentTask = x.taskID === active.id ? x : undefined;
-    });
+    const taskId = active.id;
+    const columnId = active.data.current.sortable.containerId;
 
-    setDraggingItem(currentTask);
+    const column = columns.find(x => x.id === columnId);
+    const task = column?.tasks.find(x => x.id === taskId);
+
+    setDraggingItem(task);
   };
 
   const handleDragOver = ({ active, over }: DragOverEvent) => {
-    if (ref.current) clearTimeout(ref.current);
+    // if (ref.current) clearTimeout(ref.current);
 
     const activeSortable = active?.data?.current?.sortable;
     const overSortable = over?.data?.current?.sortable;
@@ -130,72 +140,73 @@ function Project() {
     const currentOverTaskIndex = overSortable.items.findIndex(
       (x) => x.taskID === over.id
     );
-    const activeContainerId = activeSortable.containerId;
-    const overContainerId = overSortable.containerId;
-    const activeContainerIndex = project.columns.findIndex(
-      (x) => x.columnID === activeContainerId
-    );
-    const overContainerIndex = project.columns.findIndex(
-      (x) => x.columnID === overContainerId
-    );
+    console.log({ currentActiveTaskIndex, currentOverTaskIndex })
+    // const activeContainerId = activeSortable.containerId;
+    // const overContainerId = overSortable.containerId;
+    // const activeContainerIndex = project.columns.findIndex(
+    //   (x) => x.columnID === activeContainerId
+    // );
+    // const overContainerIndex = project.columns.findIndex(
+    //   (x) => x.columnID === overContainerId
+    // );
 
-    ref.current = setTimeout(() => {
-      const newProject = JSON.parse(JSON.stringify(project));
+    // ref.current = setTimeout(() => {
+    //   const newProject = JSON.parse(JSON.stringify(project));
 
-      if (!activeContainerId || !overContainerId) return;
+    //   if (!activeContainerId || !overContainerId) return;
 
-      if (activeContainerId === overContainerId) {
-        const newTasks = arrayMove(
-          newProject.columns[activeContainerIndex].tasks,
-          currentActiveTaskIndex,
-          currentOverTaskIndex
-        );
+    //   if (activeContainerId === overContainerId) {
+    //     const newTasks = arrayMove(
+    //       newProject.columns[activeContainerIndex].tasks,
+    //       currentActiveTaskIndex,
+    //       currentOverTaskIndex
+    //     );
 
-        newProject.columns[activeContainerIndex].tasks = newTasks;
-        setProject(newProject);
-      } else {
-        const copyActiveTasks = JSON.parse(
-          JSON.stringify(newProject.columns[activeContainerIndex].tasks)
-        );
-        const copyOverTasks = JSON.parse(
-          JSON.stringify(newProject.columns[overContainerIndex].tasks)
-        );
+    //     newProject.columns[activeContainerIndex].tasks = newTasks;
+    //     setProject(newProject);
+    //   } else {
+    //     const copyActiveTasks = JSON.parse(
+    //       JSON.stringify(newProject.columns[activeContainerIndex].tasks)
+    //     );
+    //     const copyOverTasks = JSON.parse(
+    //       JSON.stringify(newProject.columns[overContainerIndex].tasks)
+    //     );
 
-        const newActiveTasks = [
-          ...copyActiveTasks.slice(0, currentActiveTaskIndex),
-          ...copyActiveTasks.slice(currentActiveTaskIndex + 1),
-        ];
+    //     const newActiveTasks = [
+    //       ...copyActiveTasks.slice(0, currentActiveTaskIndex),
+    //       ...copyActiveTasks.slice(currentActiveTaskIndex + 1),
+    //     ];
 
-        const newOverTasks = [
-          ...copyOverTasks.slice(0, currentOverTaskIndex),
-          newProject.columns[activeContainerIndex].tasks[
-          currentActiveTaskIndex
-          ],
-          ...copyOverTasks.slice(currentOverTaskIndex),
-        ];
+    //     const newOverTasks = [
+    //       ...copyOverTasks.slice(0, currentOverTaskIndex),
+    //       newProject.columns[activeContainerIndex].tasks[
+    //       currentActiveTaskIndex
+    //       ],
+    //       ...copyOverTasks.slice(currentOverTaskIndex),
+    //     ];
 
-        newProject.columns[activeContainerIndex].tasks = newActiveTasks;
-        newProject.columns[overContainerIndex].tasks = newOverTasks;
-        setProject(newProject);
+    //     newProject.columns[activeContainerIndex].tasks = newActiveTasks;
+    //     newProject.columns[overContainerIndex].tasks = newOverTasks;
+    //     setProject(newProject);
 
-        const paramsApi = {
-          sourceColumnID: activeSortable.containerId,
-          targetColumnID: overSortable.containerId,
-          newIndex: currentOverTaskIndex,
-          oldIndex: currentActiveTaskIndex,
-          taskID: active.id,
-        };
+    //     const paramsApi = {
+    //       sourceColumnID: activeSortable.containerId,
+    //       targetColumnID: overSortable.containerId,
+    //       newIndex: currentOverTaskIndex,
+    //       oldIndex: currentActiveTaskIndex,
+    //       taskID: active.id,
+    //     };
 
-        setTaskParams(paramsApi);
-      }
-    }, 200);
+    //     setTaskParams(paramsApi);
+    //   }
+    // }, 200);
   };
 
   const handleDragEnd = async ({ active, over }: DragEndEvent) => {
-    if (!taskParams) return;
+    // if (!taskParams) return;
 
-    await postApi(API_PATH.PROJECT.TASK.CHANGE_INDEX, taskParams, {});
-    setDraggingItem(null);
+    // await postApi(API_PATH.PROJECT.TASK.CHANGE_INDEX, taskParams, {});
+    // setDraggingItem(null);
   };
 
   const handleCloseBoxChat = (e) => {
@@ -203,7 +214,7 @@ function Project() {
   };
 
   const onAddTask = () => {
-    refetchProject();
+    refetchColumn();
   };
 
   const onAddColumn = () => {
@@ -266,12 +277,13 @@ function Project() {
                 col={col}
                 key={col.id}
                 refetch={refetchColumn}
+                assigneList={assigneList}
               />
             );
           })}
           <DragOverlay dropAnimation={dropAnimation}>
             {draggingItem ? (
-              <div className="shadow-md animate-bounce">
+              <div className="shadow-md">
                 <TaskItem task={draggingItem} />
               </div>
             ) : null}

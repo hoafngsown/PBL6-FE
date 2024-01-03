@@ -39,9 +39,9 @@ const TaskSection = ({ id, task, onDeleteTask }: IProps) => {
         <div className='mt-1 flex items-center justify-between'>
           <span className='flex items-center gap-x-1 text-sm'>
             Deadline:
-            <span className={clsx({ 'text-red-500': isDeadlineDate(task.deadline_date) })}>
+            {/* <span className={clsx({ 'text-red-500': isDeadlineDate(task.deadline_date) })}>
               {moment(task.deadline_date).format('YYYY-MM-DD')}
-            </span>
+            </span> */}
           </span>
           <img src="https://ps.w.org/user-avatar-reloaded/assets/icon-256x256.png?rev=2540745" alt='avt-user' className='w-7 h-7 rounded-[50%] object-contain' />
         </div>
@@ -52,11 +52,11 @@ const TaskSection = ({ id, task, onDeleteTask }: IProps) => {
         </button>
       </div>
 
-      <Popper id={Boolean(anchorEl) ? id : undefined} open={Boolean(anchorEl)} anchorEl={anchorEl}>
+      {/* <Popper id={Boolean(anchorEl) ? id : undefined} open={Boolean(anchorEl)} anchorEl={anchorEl}>
         <Box sx={{ border: 0.2, bgcolor: 'background.paper', display: 'flex', flexDirection: 'column', gapY: '2px' }}>
           <button className='hover:bg-[#ccc]/40 transition-all px-2 py-1' onClick={() => onDeleteTask(id)}>Delete</button>
         </Box>
-      </Popper>
+      </Popper> */}
     </div>
 
   )

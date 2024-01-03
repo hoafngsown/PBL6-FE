@@ -28,5 +28,6 @@ export const addProjectSchema = yup.object({
 export const addTaskSchema = yup.object({
   title: yup.string().required(MESSAGES.PROJECT.TASK.T001),
   description: yup.string().required(MESSAGES.PROJECT.TASK.T002),
-  deadline_date: yup.date().required(MESSAGES.PROJECT.TASK.T003).typeError(MESSAGES.PROJECT.TASK.T003),
+  startDate: yup.date().required(MESSAGES.PROJECT.TASK.T003).typeError(MESSAGES.PROJECT.TASK.T003),
+  dueDate: yup.date().required(MESSAGES.PROJECT.TASK.T003).typeError(MESSAGES.PROJECT.TASK.T003),
 });

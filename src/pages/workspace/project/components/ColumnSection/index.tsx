@@ -1,25 +1,27 @@
+import { putApi } from '@/api/api';
+import { API_PATH } from '@/api/path';
+import MyDialog from '@/components/common/Dialog';
+import FormTextField from '@/components/form/FormTextField';
+import { IRole } from '@/types/project';
+import { r } from '@/utils/routes';
+import { NotifyTypeEnum, notify } from '@/utils/toast';
 import { useDroppable } from '@dnd-kit/core';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import { useFormik } from 'formik';
+import { useRef, useState } from 'react';
+import { useMutation } from 'react-query';
+import { useParams } from 'react-router-dom';
+import ModalAddTask from '../ModalAddTask';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import TaskSection from '../TaskSection';
-import EditIcon from '@mui/icons-material/Edit';
-import MyDialog from '@/components/common/Dialog';
-import AddIcon from '@mui/icons-material/Add';
-import { useRef, useState } from 'react';
-import ModalAddTask from '../ModalAddTask';
-import { useMutation } from 'react-query';
-import { putApi } from '@/api/api';
-import { r } from '@/utils/routes';
-import { API_PATH } from '@/api/path';
-import { useParams } from 'react-router-dom';
-import { NotifyTypeEnum, notify } from '@/utils/toast';
-import { useFormik } from 'formik';
-import FormTextField from '@/components/form/FormTextField';
 
 interface IProps {
   col: any;
   onAddTask: () => void;
   onDeleteTask: (id: string) => void;
   refetch: any;
+  assigneList: IRole[];
 }
 
 interface IFormValues {
@@ -101,19 +103,19 @@ function ColumnSection(props: IProps) {
           }}
         />
       </div>
-      {/* <SortableContext
+      <SortableContext
         id={props.col.id}
         items={props.col.tasks}
         strategy={verticalListSortingStrategy}
       >
         <div ref={setNodeRef} className='flex flex-col gap-y-2 mt-2'>
           {props.col.tasks && props.col.tasks.length && props.col.tasks.map((task) => (
-            <div key={task.taskID}>
-              <TaskSection id={task.taskID} task={task} onDeleteTask={props.onDeleteTask} />
+            <div key={task.id}>
+              <TaskSection id={task.id} task={task} onDeleteTask={props.onDeleteTask} />
             </div>
           ))}
         </div>
-      </SortableContext> */}
+      </SortableContext>
       <div className='mt-4'>
         <div className='flex items-center gap-x-1 w-fit cursor-pointer' onClick={() => setIsOpenModal(true)}>
           <AddIcon fontSize='small' />
@@ -121,7 +123,7 @@ function ColumnSection(props: IProps) {
         </div>
       </div>
 
-      {/* <MyDialog
+      <MyDialog
         open={isOpenModal}
         title='Add Task'
         isShowAction={false}
@@ -129,11 +131,12 @@ function ColumnSection(props: IProps) {
         doAction={() => { }}
       >
         <ModalAddTask
+          projectId={id}
           columnID={props.col.id}
-          columnLength={props.col.tasks.length}
           onAddTask={onAddTask}
+          assigneList={props.assigneList}
         />
-      </MyDialog> */}
+      </MyDialog>
     </div>
   )
 }
