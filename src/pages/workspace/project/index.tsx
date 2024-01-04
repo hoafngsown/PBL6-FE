@@ -20,7 +20,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import { arrayMove, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import AddIcon from "@mui/icons-material/Add";
 import ChatIcon from "@mui/icons-material/Chat";
 import { Backdrop, CircularProgress } from "@mui/material";
@@ -81,12 +81,7 @@ function Project() {
     return response.data.metadata;
   };
 
-  const getPermission = async () => {
-    const response = await getApi(r(API_PATH.PROJECT.PERMISSION, { id }), {});
-    return response.data.metadata;
-  };
-
-  const { refetch: refetchProject, isLoading: isLoadingProject } = useQuery({
+  const { isLoading: isLoadingProject } = useQuery({
     queryKey: ["get_project_detail", id],
     queryFn: getProjectDetail,
     onSuccess: (data) => {
@@ -99,11 +94,6 @@ function Project() {
     queryKey: ["get_column_list", id],
     queryFn: getColumnList,
     onSuccess: (data) => setColumns(data)
-  });
-
-  const { data: permission } = useQuery({
-    queryKey: ["get_permission", id],
-    queryFn: getPermission,
   });
 
   const mutateDeleteTask = useMutation({
@@ -264,15 +254,19 @@ function Project() {
         <div className="flex gap-x-6">
           {columns && columns.length && columns.map((col) => {
             return (
-              <ColumnSection
-                onAddTask={onAddTask}
-                onDeleteTask={onDeleteTask}
-                col={col}
+              <div
                 key={col.id}
-                refetch={refetchColumn}
-                assigneList={assigneList}
-                role={role}
-              />
+                id={col.id}
+              >
+                <ColumnSection
+                  onAddTask={onAddTask}
+                  onDeleteTask={onDeleteTask}
+                  col={col}
+                  refetch={refetchColumn}
+                  assigneList={assigneList}
+                  role={role}
+                />
+              </div>
             );
           })}
           <DragOverlay dropAnimation={dropAnimation}>
@@ -315,7 +309,7 @@ function Project() {
         onClose={() => setIsOpenModalAddUser(false)}
         doAction={() => { }}
       >
-        <ModalAddUser projectID={id} />
+        <ModalAddUser projectID={id} onClose={() => setIsOpenModalAddUser(false)} />
       </MyDialog>}
 
 

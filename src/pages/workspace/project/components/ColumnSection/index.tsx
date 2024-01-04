@@ -115,7 +115,7 @@ function ColumnSection(props: IProps) {
         <div ref={setNodeRef} className='flex flex-col gap-y-2 mt-2'>
           {props.col.tasks && props.col.tasks.length && props.col.tasks.map((task) => (
             <div key={task.id}>
-              <TaskSection id={task.id} task={task} onDeleteTask={(payload) => {
+              <TaskSection role={props.role} id={task.id} task={task} onDeleteTask={(payload) => {
                 props.onDeleteTask({ ...payload, columnId: props.col.id })
               }} />
             </div>

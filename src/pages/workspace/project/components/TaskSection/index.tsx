@@ -1,3 +1,4 @@
+import { EProjectRole } from '@/constants/project';
 import { isDeadlineDate } from '@/utils';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -12,9 +13,10 @@ interface IProps {
   id: string;
   task: any;
   onDeleteTask: (values: any) => void;
+  role: EProjectRole;
 };
 
-const TaskSection = ({ id, task, onDeleteTask }: IProps) => {
+const TaskSection = ({ id, task, onDeleteTask, role }: IProps) => {
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -47,9 +49,11 @@ const TaskSection = ({ id, task, onDeleteTask }: IProps) => {
         </div>
       </div>
       <div className='z-30 opacity-0 invisible group-hover:opacity-100 group-hover:visible absolute top-1 right-1'>
-        <button aria-describedby={Boolean(anchorEl) ? id : undefined} type="button" className='cursor-pointer' onClick={handleClickButtonMore}>
-          <MoreVertIcon fontSize='medium' />
-        </button>
+        {(role === EProjectRole.ADMIN || role === EProjectRole.OWNER) &&
+          <button aria-describedby={Boolean(anchorEl) ? id : undefined} type="button" className='cursor-pointer' onClick={handleClickButtonMore}>
+            <MoreVertIcon fontSize='medium' />
+          </button>
+        }
       </div>
 
       <Popper id={Boolean(anchorEl) ? id : undefined} open={Boolean(anchorEl)} anchorEl={anchorEl}>
